@@ -16,20 +16,24 @@ import ProfileScreen from './screens/ProfileScreen';
 import CartScreen from './screens/CartScreen';
 import CategoryScreen from './screens/CategoryScreen';
 
+
+const Stack = createNativeStackNavigator();
+
+
 const TabNavigator = createBottomTabNavigator({
   Home: {
     screen: HomeScreen,
     navigationOptions: {
       tabBarLabel: "Home",
       tabBarOptions: {
-        activeTintColor: "#006600",
+        activeTintColor: "#000000",
       },
       tabBarIcon: (tabInfo) => {
         return (
           <Ionicons
             name="md-home"
             size={24}
-            color={tabInfo.focused ? "#006600" : "#8e8e93"}
+            color={tabInfo.focused ? "#000000" : "#8e8e93"}
           />
         );
       },
@@ -40,14 +44,32 @@ const TabNavigator = createBottomTabNavigator({
     navigationOptions: {
       tabBarLabel: "Profile",
       tabBarOptions: {
-        activeTintColor: "#006600",
+        activeTintColor: "#000000",
       },
       tabBarIcon: (tabInfo) => {
         return (
           <Ionicons
             name="md-person-circle-outline"
             size={24}
-            color={tabInfo.focused ? "#006600" : "#8e8e93"}
+            color={tabInfo.focused ? "#000000" : "#8e8e93"}
+          />
+        );
+      },
+    },
+  },
+  Cart: {
+    screen: CartScreen,
+    navigationOptions: {
+      tabBarLabel: "Cart",
+      tabBarOptions: {
+        activeTintColor: "#000000",
+      },
+      tabBarIcon: (tabInfo) => {
+        return (
+          <Ionicons
+            name="md-cart"
+            size={24}
+            color={tabInfo.focused ? "#000000" : "#8e8e93"}
           />
         );
       },
@@ -58,20 +80,22 @@ const TabNavigator = createBottomTabNavigator({
     navigationOptions: {
       tabBarLabel: "Category",
       tabBarOptions: {
-        activeTintColor: "#006600",
+        activeTintColor: "#000000",
       },
       tabBarIcon: (tabInfo) => {
         return (
           <Ionicons
-            name="md-settings-outline"
+            name="md-menu"
             size={24}
-            color={tabInfo.focused ? "#006600" : "#8e8e93"}
+            color={tabInfo.focused ? "#000000" : "#8e8e93"}
           />
         );
       },
     },
   },
 });
+
+
   
 const Navigator = createAppContainer(TabNavigator);
   
@@ -79,12 +103,16 @@ export default function App() {
 
   return (
     <NavigationContainer>
+      <Navigator>
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Navigator>
+       
+       
         <Stack.Screen name="Home" component={HomeScreen} /> 
-        </Navigator> 
+        
       </Stack.Navigator>
+      </Navigator>
+       
     </NavigationContainer>
   );
 }
