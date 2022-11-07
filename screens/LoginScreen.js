@@ -1,7 +1,9 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { auth } from '../firebase'
+import { auth, db } from '../firebase'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('')
@@ -19,19 +21,31 @@ const LoginScreen = () => {
     return unsubscribe
   }, [])
 
+
+  function addUserToFirestore(email){
+    addDoc(collection(db, "users"), {     
+      email: email,
+    }).then(() => { 
+      // Data saved successfully!
+      console.log('data submitted');  
+    }).catch((error) => {
+          // The write failed...
+          console.log(error);
+    });
+  }
+
   const handleSignUp = () => {
-    auth
-      .createUserWithEmailAndPassword(email, password)
+    createUserWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
         const user = userCredentials.user;
         console.log('Registered with:', user.email);
+        addUserToFirestore(email);
       })
       .catch(error => alert(error.message))
   }
 
   const handleLogin = () => {
-    auth
-      .signInWithEmailAndPassword(email, password)
+    signInWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
         const user = userCredentials.user;
         console.log('Logged in with:', user.email);
