@@ -3,6 +3,8 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { auth } from '../firebase'
 
+
+
 const HomeScreen = () => {
   const navigation = useNavigation()
 
@@ -14,6 +16,8 @@ const HomeScreen = () => {
       })
       .catch(error => alert(error.message))
   }
+
+
 
   return (
     <View style={styles.container}>
