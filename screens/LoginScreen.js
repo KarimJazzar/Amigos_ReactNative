@@ -21,19 +21,6 @@ const LoginScreen = () => {
     return unsubscribe
   }, [])
 
-
-  function addUserToFirestore(email){
-    addDoc(collection(db, "users"), {     
-      email: email,
-    }).then(() => { 
-      // Data saved successfully!
-      console.log('data submitted');  
-    }).catch((error) => {
-          // The write failed...
-          console.log(error);
-    });
-  }
-
   const handleSignUp = () => {
     navigation.replace("Register");
   }
