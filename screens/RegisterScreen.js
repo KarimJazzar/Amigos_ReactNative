@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
+import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState('')
@@ -26,20 +26,30 @@ const RegisterScreen = () => {
   }, [])
 
 
-  function addUserToFirestore(email,fName,lName,userAdress){
-    addDoc(collection(db, "users"), {     
+  function addUserToFirestore(email,fName,lName,userAdress, userID){
+    const docRef = doc(db,"users", userID);
+    const userData = {
+        email: email,
+        firstName: fName,
+        lastName: lName,
+        address: userAdress,
+        isAdmin: false
+    }
+    setDoc(docRef,userData);
+
+    /*addDoc(collection(db, "users"), userID),{     
       email: email,
       firstName: fName,
       lastName: lName,
       address: userAdress,
       isAdmin: false
-    }).then(() => { 
+    }.then(() => { 
       // Data saved successfully!
       console.log('data submitted');  
     }).catch((error) => {
           // The write failed...
           console.log(error);
-    });
+    });*/
   }
 
   const handleSignUp = () => {
@@ -47,7 +57,7 @@ const RegisterScreen = () => {
       .then(userCredentials => {
         const user = userCredentials.user;
         console.log('Registered with:', user.email);
-        addUserToFirestore(email, firstName,lastName,address);
+        addUserToFirestore(email, firstName,lastName,address, user.uid);
       })
       .catch(error => alert(error.message))
   }
