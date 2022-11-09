@@ -5,9 +5,13 @@ import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 
-const LoginScreen = () => {
+const RegisterScreen = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [address, setAddress] = useState('')
 
   const navigation = useNavigation()
 
@@ -22,9 +26,13 @@ const LoginScreen = () => {
   }, [])
 
 
-  function addUserToFirestore(email){
+  function addUserToFirestore(email,fName,lName,userAdress){
     addDoc(collection(db, "users"), {     
       email: email,
+      firstName: fName,
+      lastName: lName,
+      address: userAdress,
+      isAdmin: false
     }).then(() => { 
       // Data saved successfully!
       console.log('data submitted');  
@@ -35,16 +43,17 @@ const LoginScreen = () => {
   }
 
   const handleSignUp = () => {
-    navigation.replace("Register");
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(userCredentials => {
+        const user = userCredentials.user;
+        console.log('Registered with:', user.email);
+        addUserToFirestore(email, firstName,lastName,address);
+      })
+      .catch(error => alert(error.message))
   }
 
   const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Logged in with:', user.email);
-      })
-      .catch(error => alert(error.message))
+    navigation.replace("Login")
   }
 
   return (
@@ -53,6 +62,28 @@ const LoginScreen = () => {
       behavior="padding"
     >
       <View style={styles.inputContainer}>
+
+      <TextInput
+          placeholder="First Name"
+          value={firstName}
+          onChangeText={text => setFirstName(text)}
+          style={styles.input}
+        />
+
+        <TextInput
+          placeholder="Last Name"
+          value={lastName}
+          onChangeText={text => setLastName(text)}
+          style={styles.input}
+        />
+
+        <TextInput
+          placeholder="Address"
+          value={address}
+          onChangeText={text => setAddress(text)}
+          style={styles.input}
+        />
+
         <TextInput
           placeholder="Email"
           value={email}
@@ -70,23 +101,23 @@ const LoginScreen = () => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={handleLogin}
+          onPress={handleSignUp}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={handleSignUp}
+          onPress={handleLogin}
           style={[styles.button, styles.buttonOutline]}
         >
-          <Text style={styles.buttonOutlineText}>Don't Have an Account? Register now!</Text>
+          <Text style={styles.buttonOutlineText}>Already Have an Account? Login now!</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   )
 }
 
-export default LoginScreen
+export default RegisterScreen
 
 const styles = StyleSheet.create({
   container: {
