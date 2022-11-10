@@ -8,15 +8,14 @@ import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs,
 const LoginScreen = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  //const [uID, setUID] = useState('');
 
   const navigation = useNavigation()
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
-        navigation.replace("TabNavigation",
-        
-        )
+        navigation.replace("TabNavigation")
       }
     })
 
@@ -32,6 +31,7 @@ const LoginScreen = () => {
       .then(userCredentials => {
         const user = userCredentials.user;
         console.log('Logged in with:', user.uid);
+        //setUID(user.uid);
       })
       .catch(error => alert(error.message))
   }
