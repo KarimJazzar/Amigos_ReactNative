@@ -10,11 +10,47 @@ import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen';
 import CartScreen from './CartScreen';
 import CategoryScreen from './CategoryScreen';
+
+import AdminHomeScreen from './AdminHomeScreen';
+
 import { auth } from '../firebase';
 import { db } from '../firebase'
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 
+
+
+  
+function TabNavigationScreens(){
+
+  const userLoggedInID = auth.currentUser?.uid
+
+  const getUserDetails = async (id) => {
+    const userSnapshot = await getDoc(doc(db, 'users', id));
+    if (userSnapshot.exists()) {
+        //console.log(userSnapshot.data());     
+        return userSnapshot.data();
+    } else {
+        console.log("Note doesn't exist");
+    }
+  };
+
+
+  const [userLogged,setUserLogged] = useState({});
+
+
+  useEffect(() => {
+    getUserDetails(userLoggedInID).then(userDetails => {
+      setUserLogged(userDetails)
+    })
+  }, []);
+  
+  if(userLogged.isAdmin==false){
+    
+  //USER TABS
 const TabNavigator = createBottomTabNavigator({
+
+  
+
   Home: {
     screen: HomeScreen,
     navigationOptions: {
@@ -89,46 +125,66 @@ const TabNavigator = createBottomTabNavigator({
   },
 });
 
+
 const Navigator = createAppContainer(TabNavigator);
 
-const userLoggedInID = auth.currentUser?.uid
 
-  const getUserDetails = async (id) => {
-    const userSnapshot = await getDoc(doc(db, 'users', id));
-    if (userSnapshot.exists()) {
-        //console.log(userSnapshot.data());     
-        return userSnapshot.data();
-    } else {
-        console.log("Note doesn't exist");
-    }
-};
+return (
+  <Navigator>
+        
+        TabNavigator()
+
+  </Navigator>  
+);
+
+  }else{
+
+
+    // ADMIN TABS
+const AdminTabNavigator = createBottomTabNavigator({
+  AdminHome: {
+    screen: AdminHomeScreen,
+    navigationOptions: {
+      tabBarLabel: "AdminHome",
+      tabBarOptions: {
+        activeTintColor: "#000000",
+      },
+      tabBarIcon: (tabInfo) => {
+        return (
+          <Ionicons
+            name="md-home"
+            size={24}
+            color={tabInfo.focused ? "#000000" : "#8e8e93"}
+          />
+        );
+      },
+    },
+  },
   
-function TabNavigationScreens(){
-  const [userLogged,setUserLogged] = useState({});
-
-
-  useEffect(() => {
-    getUserDetails(userLoggedInID).then(userDetails => {
-      setUserLogged(userDetails)
-    })
-  }, []);
+ 
   
+});
+
+const Navigator = createAppContainer(AdminTabNavigator);
 
 
-  if(userLogged.isAdmin==false){
     return (
       <Navigator>
+
             
-            TabNavigator()
-            
-      </Navigator>  
-  );
-  }else{
-    return (
-      <Text>Admin</Text>  
+      AdminTabNavigator()
+
+      </Navigator>
   );
   }
 
+  
+
+
+
+
+
+  
   
 }
 
