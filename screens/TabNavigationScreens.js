@@ -114,9 +114,12 @@ function TabNavigationScreens(){
   }, []);
   
 
+
   if(userLogged.isAdmin==false){
     return (
       <Navigator>
+            
+            TabNavigator()
             
       </Navigator>  
   );
