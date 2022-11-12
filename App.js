@@ -7,6 +7,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
 import TabNavigationScreens from './screens/TabNavigationScreens';
 import RegisterScreen from './screens/RegisterScreen';
+import AddCategoryScreen from './screens/AddCategoryScreen';
+
 
 const Stack = createNativeStackNavigator();
   
@@ -18,6 +20,8 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="TabNavigation" component={TabNavigationScreens} /> 
+        <Stack.Screen name="AddCategory" component={AddCategoryScreen} /> 
+
       </Stack.Navigator>
        
     </NavigationContainer>

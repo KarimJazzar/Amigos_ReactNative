@@ -2,8 +2,20 @@ import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
   
+
 const AdminHomeScreen = () => {
+
+  const navigation = useNavigation()
+
+
+  const handle = () => {
+    navigation.navigate("AddCategory")
+  }
+
   return (
+
+    
+    
     <KeyboardAvoidingView
       style={styles.container}
       behavior="padding"
@@ -11,14 +23,13 @@ const AdminHomeScreen = () => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          // onPress={handleSignUp}
+          onPress={handle}
           style={styles.button}
         >
           <Text style={styles.buttonText}>Add Category</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          // onPress={handleSignUp}
           style={styles.button}
         >
           <Text style={styles.buttonText}>Add Products</Text>
@@ -27,6 +38,8 @@ const AdminHomeScreen = () => {
       </View>
     </KeyboardAvoidingView>
   )
+
+ 
 };
 
 const styles = StyleSheet.create({
