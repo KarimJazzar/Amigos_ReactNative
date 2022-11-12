@@ -1,16 +1,32 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 
   
-const ProfileScreen = () => {
+const AddCategoryScreen = () => {
 
     const [CatName, setCatName] = useState('')
     const [CatDesc, setCatDesc] = useState('')
 
+
+    const validation = () =>{
+
+        if(CatName==''){
+            Alert.alert("Enter Category")
+        }
+        else if(CatDesc==''){
+            Alert.alert("Enter Description")
+
+        }
+        else{
+            addToDb()
+           
+
+        }
+    }
 
     const addToDb = () => {
         try {
@@ -18,12 +34,21 @@ const ProfileScreen = () => {
             catName: CatName,
             catDesc: CatDesc,
           });
+
+          clearInputs()
+          Alert.alert("Added Successfully")
+          
           console.log("Document written with ID: ", docRef.id);
         } catch (e) {
           console.error("Error adding document: "+ formValues.student_id, e);
         }
       };
 
+    const clearInputs = () => {
+        setCatName('')
+        setCatDesc('')
+
+    }
 
 
     return (
@@ -50,7 +75,7 @@ const ProfileScreen = () => {
     
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              onPress={addToDb}
+              onPress={validation}
               style={styles.button}
             >
               <Text style={styles.buttonText}>Create Category</Text>
@@ -61,7 +86,7 @@ const ProfileScreen = () => {
       )
 };
   
-export default ProfileScreen;
+export default AddCategoryScreen;
 
 const styles = StyleSheet.create({
     container: {
