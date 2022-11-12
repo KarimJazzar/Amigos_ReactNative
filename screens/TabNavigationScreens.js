@@ -145,7 +145,7 @@ const AdminTabNavigator = createBottomTabNavigator({
   AdminHome: {
     screen: AdminHomeScreen,
     navigationOptions: {
-      tabBarLabel: "AdminHome",
+      tabBarLabel: "Home",
       tabBarOptions: {
         activeTintColor: "#000000",
       },
