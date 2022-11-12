@@ -8,12 +8,21 @@ import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, get
   
 const ProfileScreen = () => {
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-  
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
-    const [address, setAddress] = useState('')
+    const [CatName, setCatName] = useState('')
+    const [CatDesc, setCatDesc] = useState('')
+
+
+    const addToDb = () => {
+        try {
+          const docRef = addDoc(collection(db, "category"), {
+            catName: CatName,
+            catDesc: CatDesc,
+          });
+          console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+          console.error("Error adding document: "+ formValues.student_id, e);
+        }
+      };
 
 
 
@@ -25,54 +34,28 @@ const ProfileScreen = () => {
           <View style={styles.inputContainer}>
     
           <TextInput
-              placeholder="First Name"
-              value={firstName}
-              onChangeText={text => setFirstName(text)}
+              placeholder="Category Name"
+              value={CatName}
+              onChangeText={text => setCatName(text)}
               style={styles.input}
             />
     
             <TextInput
-              placeholder="Last Name"
-              value={lastName}
-              onChangeText={text => setLastName(text)}
+              placeholder="Category Description"
+              value={CatDesc}
+              onChangeText={text => setCatDesc(text)}
               style={styles.input}
-            />
-    
-            <TextInput
-              placeholder="Address"
-              value={address}
-              onChangeText={text => setAddress(text)}
-              style={styles.input}
-            />
-    
-            <TextInput
-              placeholder="Email"
-              value={email}
-              onChangeText={text => setEmail(text)}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Password"
-              value={password}
-              onChangeText={text => setPassword(text)}
-              style={styles.input}
-              secureTextEntry
             />
           </View>
     
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-            //   onPress={handleSignUp}
+              onPress={addToDb}
               style={styles.button}
             >
-              <Text style={styles.buttonText}>Register</Text>
+              <Text style={styles.buttonText}>Create Category</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-            //   onPress={handleLogin}
-              style={[styles.button, styles.buttonOutline]}
-            >
-              <Text style={styles.buttonOutlineText}>Already Have an Account? Login now!</Text>
-            </TouchableOpacity>
+           
           </View>
         </KeyboardAvoidingView>
       )
