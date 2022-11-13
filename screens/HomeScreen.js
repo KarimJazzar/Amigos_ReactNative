@@ -17,7 +17,9 @@ const HomeScreen = () => {
       .catch(error => alert(error.message))
   }
 
-
+  const goToSearchCustomers = () => {
+    navigation.navigate("CustomerInformation")
+  }
 
   return (
     <View style={styles.container}>
@@ -27,6 +29,13 @@ const HomeScreen = () => {
         style={styles.button}
       >
         <Text style={styles.buttonText}>Sign out</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={goToSearchCustomers}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Search Customers</Text>
       </TouchableOpacity>
     </View>
   )
