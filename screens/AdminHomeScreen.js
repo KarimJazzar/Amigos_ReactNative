@@ -8,9 +8,7 @@ const AdminHomeScreen = () => {
   const navigation = useNavigation()
 
 
-  const handle = () => {
-    navigation.navigate("AddCategory")
-  }
+ 
 
   return (
 
@@ -23,14 +21,25 @@ const AdminHomeScreen = () => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={handle}
           style={styles.button}
+          onPress={() => {
+              
+            navigation.navigate("AddCategory")
+            
+          }}
+
         >
+          
           <Text style={styles.buttonText}>Add Category</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.button}
+          onPress={() => {
+              
+            navigation.navigate("AddProduct")
+            
+          }}
         >
           <Text style={styles.buttonText}>Add Products</Text>
         </TouchableOpacity>

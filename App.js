@@ -8,6 +8,8 @@ import LoginScreen from './screens/LoginScreen';
 import TabNavigationScreens from './screens/TabNavigationScreens';
 import RegisterScreen from './screens/RegisterScreen';
 import AddCategoryScreen from './screens/AddCategoryScreen';
+import AddProductScreen from './screens/AddProductScreen';
+
 
 
 const Stack = createNativeStackNavigator();
@@ -16,11 +18,13 @@ export default function App() {
 
   return (
     <NavigationContainer>
+
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="TabNavigation" component={TabNavigationScreens} /> 
         <Stack.Screen name="AddCategory" component={AddCategoryScreen} /> 
+        <Stack.Screen name="AddProduct" component={AddProductScreen} /> 
 
       </Stack.Navigator>
        
