@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState , Component } from 'react'
-import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight, View , Image, Button} from 'react-native'
+import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight, View , Image, Pressable, Button, LogBox} from 'react-native'
 import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
@@ -10,33 +10,32 @@ import { format } from 'date-fns'
 import {getStorage, ref, uploadBytes} from 'firebase/storage'
 import * as ImagePicker from 'expo-image-picker';
 import urid from 'urid';
+import { Ionicons } from "@expo/vector-icons";
+import { ScrollView } from 'react-native-gesture-handler';
 
-const AddProductScreen = () => {
 
-    const [Name, setName] = useState('')
-    const [Price, setPrice] = useState(0)
+const EditProductFinal = ({navigation, route}) => {
+    const prod = route.params;
 
-    const [Desc, setDesc] = useState('')
-    const [Image, setImage] = useState('')
-
-    const [Cat, setCat] = useState('')
-    const [Qty, setQty] = useState('')
-
-    const [Disc, setDisc] = useState('')
-
+    const [Name, setName] = useState(prod.name)
+    const [Price, setPrice] = useState(prod.price)
+    const [Desc, setDesc] = useState(prod.description)
+    const [Image, setImage] = useState(prod.url)
+    const [Cat, setCat] = useState(prod.category)
+    const [Qty, setQty] = useState(prod.quantity)
+    const [Disc, setDisc] = useState(prod.discount)
     const [DiscStart, setDiscStart] = useState('DD-MM-YYYY')
-
     const [DiscEnd, setDiscEnd ] = useState('DD-MM-YYYY')
-
     const [discStartButton, setDiscStartButton ] = useState('Set Discount Start')
-
     const [discEndButton, setDiscEndButton ] = useState('Set Discount End')
-
-
     const [UpdationDate, setUpdationDate ] = useState()
-
     const [catData, setCatData] = useState([]);
 
+    
+
+    const goBack = () => {
+      navigation.goBack()
+    }
 
     const validation = () =>{
       //addToDb();
@@ -66,11 +65,11 @@ const AddProductScreen = () => {
             } else if(DiscEnd==''){
                 Alert.alert("Select Discount End Date")
             }else{
-              addToDb()
+              editToDb()
             }
         }
         else{
-            addToDb()
+            editToDb()
         }
 
        
@@ -97,31 +96,26 @@ const AddProductScreen = () => {
       }, []);
 
 
-    const addToDb = () => {
-      console.log("dio")
-        try {
-          const docRef = addDoc(collection(db, "product"), {
+      async function editToDb() {
+        const userLoggedInID = auth.currentUser?.uid
+  
+        await setDoc(doc(collection(db, "product"), prod.id), {
             name: Name,
             price: Price,
             description: Desc,
-            url: Image,
+            url: prod.url,
             category: Cat,
             quantity: Qty,
             discount: Disc,
             discount_start: DiscStart,
             discount_end: DiscEnd,
-            //creation_date: new Date(),
-            //updated_date: new Date(),
-          });
-   
-          Alert.alert("Added Successfully")
-        //   clearInputs()
-          
-          console.log("Document written with ID: ", docRef.id);
-        } catch (e) {
-          console.error("Error adding document: ", e);
-        }
-      };
+            userID:userLoggedInID
+        });
+        Alert.alert("Product Modified Successfully")
+        navigation.pop();
+        navigation.pop();
+        navigation.navigate("EditProduct")
+      }
 
     const clearInputs = () => {
         setName('')
@@ -130,7 +124,6 @@ const AddProductScreen = () => {
         setQty('')
         setDisc('')
         setImage('')
-    
     }
 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -197,64 +190,53 @@ const AddProductScreen = () => {
     }
   };
 
+  async function deleteProduct() {
+  
+    await deleteDoc(doc(db, "product", prod.id))
+    Alert.alert("Product Deleted Successfully")
+    navigation.pop();
+    navigation.pop();
+    navigation.navigate("EditProduct")
+
+}
+    
+    //console.log(prod)
+
     return (
         <KeyboardAvoidingView
           style={styles.container}
           behavior="padding"
         >
           <View style={styles.inputContainer}>
-    
-          <TextInput
-              placeholder="Name"
-              value={Name}
-              onChangeText={text => setName(text)}
-              style={styles.input}
-            />
 
-        <TextInput
-              placeholder="Price"
-              value={Price}
-              onChangeText={text => setPrice(parseInt(text))}
-              style={styles.input}
-            />
-    
-            <TextInput
-              placeholder="Description"
-              value={Desc}
-              onChangeText={text => setDesc(text)}
-              style={styles.input}
-            />
+          <Pressable onPress={goBack} style={styles.backGroup}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Text style={styles.backTxt}>Back</Text>
+          </Pressable>
 
-              <TouchableOpacity
-              onPress={pickImage}
-              style={styles.button}
-            >
-              <Text style={styles.buttonText}>Select Product Image</Text>
-            </TouchableOpacity> 
-      
-          </View>
-          <View style={styles.inputContainer}>
+          <Text style={styles.headline}>Product:</Text>
+
+          
+          <TextInput placeholder="Name" defaultValue={Name} onChangeText={text => setName(text)} style={styles.input}/>
+          <TextInput placeholder="Price" defaultValue={String(Price)} onChangeText={text => setPrice(parseInt(text))} style={styles.input}/>
+          <TextInput placeholder="Description" defaultValue={Desc} onChangeText={text => setDesc(text)} style={styles.input}/>
 
           <SearchableDropdown
-
           style={styles.container}
-        //   onTextChange={(text) => console.log(text)}
+          onTextChange={(text) => console.log(text)}
           onItemSelect={(item) => {
             console.log(item)
             setCat(item.name)
-            //console.log(Cat)
           }}
           containerStyle={{ padding: 5 }}
-          value={Cat}
+          
           textInputStyle={{
-            //inserted text style
             padding: 12,
             borderWidth: 1,
             borderColor: '#ccc',
             backgroundColor: '#FAF7F6',
           }}
           itemStyle={{
-            //single dropdown item style
             padding: 10,
             marginTop: 2,
             backgroundColor: '#FAF9F8',
@@ -263,88 +245,69 @@ const AddProductScreen = () => {
             borderWidth: 1,
           }}
           itemTextStyle={{
-            //text style of a single dropdown item
             color: '#000',
           }}
           itemsContainerStyle={{
-            //items container style you can pass maxHeight
-            //to restrict the items dropdown hieght
-            maxHeight: '50%',
+            
           }}
           items={catData}
-          //mapping of item array
-          //multi={true}
-          
-          defaultIndex={2}
+          defaultValue={Cat}
           placeholder="Search for catergory.."
-          // Place holder for the search input
-          // Reset textInput Value with true and false state
-          // To remove the underline from the android input
         />
 
-<View style={styles.inputContainer}>
+        <TextInput placeholder="Product Quantity" defaultValue={String(Qty)} onChangeText={text => setQty(parseInt(text))} style={styles.input} />
+        <TextInput placeholder="Product Discount" defaultValue={String(Disc)} onChangeText={text => setDisc(parseInt(text))} style={styles.input}/>
+
     
-    <TextInput
-        placeholder="Product Quantity"
-        value={Qty}
-        onChangeText={text => setQty(parseInt(text))}
-        style={styles.input}
-      />
-
-<TextInput
-        placeholder="Product Discount"
-        value={Disc}
-        onChangeText={text => setDisc(parseInt(text))}
-        style={styles.input}
-      />
-
-
-
-<Button title={discStartButton} onPress={showDatePicker} />
-<DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-        
-      />
-
-<Button title={discEndButton} onPress={showDatePicker2} />
-<DateTimePickerModal
-        isVisible={isDatePickerVisible2}
-        mode="date"
-        onConfirm={handleConfirm2}
-        onCancel={hideDatePicker2}
-      />
-
-
-    </View>
-
-        </View>
-    
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={validation}
-              style={styles.button}
-            >
-              <Text style={styles.buttonText}>Add Product</Text>
-            </TouchableOpacity>
+        <TouchableOpacity onPress={validation} style={styles.button}>
+              <Text style={styles.buttonText}>Edit Product</Text>
+        </TouchableOpacity>
            
+        <TouchableOpacity
+              onPress={deleteProduct}
+              style={styles.button2}
+            >
+              <Text style={styles.buttonText}>Delete Product</Text>
+            </TouchableOpacity>
+        
           </View>
-        </KeyboardAvoidingView>
-      )
+    </KeyboardAvoidingView>
+  )
 };
   
-export default AddProductScreen;
+export default EditProductFinal;
 
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      backgroundColor: '#000',
+      paddingTop: 35,
+      paddingHorizontal: 15
+    },
+    backGroup: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
       alignItems: 'center',
+      marginBottom: 30,
+      marginTop: 15
+    },
+    backTxt: {
+      color: '#fff',
+      fontSize: 20,
+      fontWeight: 'bold',
+      paddingLeft: 5
+    },
+    headline: {
+      fontWeight: 'bold',
+      fontSize: 25,
+      color: '#fff',
+      marginBottom: 15
     },
     inputContainer: {
-      width: '80%'
+      width: '100%',
+      marginBottom: 10
     },
     input: {
       backgroundColor: 'white',
@@ -352,9 +315,10 @@ const styles = StyleSheet.create({
       paddingVertical: 10,
       borderRadius: 10,
       marginTop: 5,
+      marginBottom: 10
     },
     buttonContainer: {
-      width: '60%',
+      width: '100%',
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 40,
@@ -362,10 +326,18 @@ const styles = StyleSheet.create({
     button: {
       backgroundColor: '#0782F9',
       width: '100%',
-      padding: 15,
+      padding: 10,
       borderRadius: 10,
       alignItems: 'center',
     },
+    button2: {
+        backgroundColor: 'red',
+        width: '100%',
+        padding: 10,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 10
+      },  
     buttonOutline: {
       backgroundColor: 'white',
       marginTop: 5,

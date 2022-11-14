@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/core'
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { auth } from '../firebase'
-
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 
 const HomeScreen = () => {
@@ -18,8 +18,27 @@ const HomeScreen = () => {
   }
 
   const goToSearchCustomers = () => {
-    navigation.navigate("CustomerInformation")
+    navigation.navigate("CustomerInfo")
   }
+
+  //the way to get image url from firebase product url (in order to render in Image component)
+  const [im,setIm] = useState("")
+  async function getImageURL(imgURL){
+  const storage = getStorage();
+  const gsReference = ref(storage, imgURL);
+  getDownloadURL(gsReference)
+  .then((url) => {
+    setIm(url)
+    return url
+  })
+  .catch((error) => {
+    // Handle any errors
+  });
+}
+  useEffect(() => {
+  getImageURL("gs://storeprojectreactnative.appspot.com/6tFsyz8NoD1uzbhp.jpg")
+  }, []);
+  console.log(im)
 
   return (
     <View style={styles.container}>
