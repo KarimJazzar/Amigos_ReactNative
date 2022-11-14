@@ -68,7 +68,7 @@ const StoreScreen = ({navigation}) => {
         console.log('============')
         console.log('INDEX = ', index, ' URL = ', tempList[tempIdx].url)
         const storage = getStorage();
-        const gsReference = ref(storage, products[tempIdx].url);
+        const gsReference = ref(storage, tempList[tempIdx].url);
         await getDownloadURL(gsReference).then((url) => {
             console.log(url);
             tempList[tempIdx].img = url;
