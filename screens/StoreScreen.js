@@ -5,6 +5,8 @@ import { auth } from '../firebase'
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from '@expo/vector-icons'; 
 import SafeAreaView from 'react-native-safe-area-view';
+import { db } from '../firebase'
+import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 
 import img1 from '../assets/ipad.jpeg'
 import img2 from '../assets/lamp.jpeg'
@@ -16,6 +18,26 @@ import img7 from '../assets/toaster.jpeg'
 import img8 from '../assets/tv.jpeg'
 
 const StoreScreen = ({navigation}) => {
+    const [categories, setCatgories] = useState([]);
+
+    const getAllCategories = async () => {
+        try {
+            console.log('TRY');
+            const response = await getDocs(collection(db, "category"));
+            let tempDoc = [];
+      
+            response.forEach((doc) => {
+                tempDoc.push(doc.data());
+            });
+      
+            setCatgories(tempDoc);
+          } catch(err) { console.log(err);}
+    }
+
+    useEffect(() => {
+        getAllCategories();
+    }, []);
+
   const dummyDate = [
     { name: 'iPad', desc: '', img: img1, price: 599.99, discount: 0, qty: 2 },
     { name: 'Lamp', desc: '', img: img2, price: 25.00, discount: 15, qty: 2 },
@@ -33,14 +55,6 @@ const StoreScreen = ({navigation}) => {
     { name: 'Speaker', desc: '', img: img6, price: 94.00, discount: 20, qty: 2 },
     { name: 'Toaster', desc: '', img: img7, price: 35.15, discount: 0, qty: 2 },
     { name: 'TV', desc: '', img: img8, price: 688.14, discount: 0, qty: 2 }
-  ];
-
-  const dummyCat = [
-    { name: "Housing" },
-    { name: "Electronics" },
-    { name: "Computers" },
-    { name: "Kitchen" },
-    { name: "Cleaning" },
   ];
 
   const [catN, setCatN] = useState(-1);
@@ -88,7 +102,7 @@ const StoreScreen = ({navigation}) => {
         showsHorizontalScrollIndicator={false} 
         numColumns={1} horizontal={true} 
         removeClippedSubviews={false} 
-        data={dummyCat} 
+        data={categories} 
         ListHeaderComponent={
           <View style={{ flexDirection: 'row' }}>
             <Pressable onPress={() => selectCategory(-1)} style={[styles.categoryBtn, catN == -1 ? styles.catBtnOn : styles.catBtnOff]}>
