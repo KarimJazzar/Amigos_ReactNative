@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, FlatList, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { db, auth } from '../firebase';
-import { collection, getDocs, where, orderBy, query, startAfter, limit, startAt } from "firebase/firestore/lite"; 
+import { collection, getDocs, where, orderBy, addDoc, query, startAfter, limit, startAt } from "firebase/firestore/lite"; 
 
 const CartScreen = ({navigation}) => {
   const userLoggedInID = auth.currentUser?.uid
@@ -28,6 +28,7 @@ const CartScreen = ({navigation}) => {
         tempList.push({
           id: doc.id,
           userID: tempObj.userID, 
+          category: tempObj.category,
           amount: tempObj.amount,
           productID: tempObj.productID,
           name: tempObj.name,
@@ -36,7 +37,6 @@ const CartScreen = ({navigation}) => {
           quantity: tempObj.quantity
         });
       })
-      console.log(tempList)
       setCart(tempList);
       setTotal(tempTotal);
   } catch(err) { console.log(err); }
@@ -47,24 +47,33 @@ const CartScreen = ({navigation}) => {
       setCanTap(false);
 
       try {
-        let tempObj = {
-            userID: userLoggedInID, 
-            amount: qty,
-            productID: product.id,
-            image: '' + product.img,
-            name: product.name,
-            price: product.price,
-            discount: product.discount,
-            quantity: product.quantity
-        }
+        console.log('BEFORE LOOP')
+        for(let i = 0; i <=cart.length; i++) {
+          let item = cart[i];
+          let tempTotal = item.discount > 0 ? (item.amount * (item.price * ((100 - item.discount) / 100))) : (tempObj.price * tempObj.amount);
+          
+          let tempObj = {
+              userID: item.userID, 
+              productID: item.productID,
+              category: item.category,
+              amount: item.quantity,
+              name: item.name,
+              price: item.price,
+              discount: item.discount,
+              total: tempTotal
+          }
 
-        await addDoc(collection(db, "cart"), tempObj).then(() => { 
-            console.log('data submitted');
-            checkInCart();
-        }).catch((error) => {
-            console.log(error);
-        });
-    } catch(err) { }
+          await addDoc(collection(db, "orders"), tempObj).then(() => { 
+              console.log('data submitted');
+          }).catch((error) => {
+              console.log(error);
+              setCanTap(true);
+          });
+
+          setCart([]);
+          setCanTap(true);
+        }
+    } catch(err) { console.log(err) }
 
     }
   }
@@ -84,7 +93,7 @@ const CartScreen = ({navigation}) => {
       <FlatList style={styles.scroll} data={cart} 
        renderItem={({ item, index }) => 
         <View style={styles.card}>
-          <Text style={styles.nameTxt}>{item.name}</Text>
+          <Text style={styles.nameTxt}>{item.name} {item.category}</Text>
           {item.discount > 0 ?
           <View style={styles.priceRow}>
             <Text style={[styles.priceTxt]}>{item.amount} Items  x  ${(item.price * ((100 - item.discount) / 100)).toFixed(2)}</Text>

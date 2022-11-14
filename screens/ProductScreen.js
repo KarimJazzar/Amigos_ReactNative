@@ -39,6 +39,7 @@ const ProductScreen = ({navigation, route}) => {
                 let tempObj = {
                     userID: userLoggedInID, 
                     amount: qty,
+                    category: product.category,
                     productID: product.id,
                     image: '' + product.img,
                     name: product.name,
