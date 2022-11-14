@@ -5,7 +5,7 @@ import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 import { Ionicons } from '@expo/vector-icons';
-  
+
 const EditProduct = ({navigation}) => {
     const goBack = () => {
       navigation.goBack()

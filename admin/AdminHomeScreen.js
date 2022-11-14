@@ -34,7 +34,7 @@ const AdminHomeScreen = ({navigation}) => {
                 </Pressable>
 
                 <Pressable style={styles.adminBtn}>
-                    <Text style={styles.adminTxt}>Purchase Stadistics</Text>
+                    <Text style={styles.adminTxt}>Purchase Statistics</Text>
                 </Pressable>
             </ScrollView>
         </View>

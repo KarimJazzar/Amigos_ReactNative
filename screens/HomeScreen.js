@@ -18,7 +18,7 @@ const HomeScreen = () => {
   }
 
   const goToSearchCustomers = () => {
-    navigation.navigate("CustomerInformation")
+    navigation.navigate("CustomerInfo")
   }
 
   return (
