@@ -26,7 +26,7 @@ const Tap = createBottomTabNavigator();
   
 export default function TabNavigationScreens() {
   const userLoggedInID = auth.currentUser?.uid
-  const [userLogged, setUserLogged] = useState({});
+  const [userLogged, setUserLogged] = useState(null);
 
   const getUserDetails = async (id) => {
     const userSnapshot = await getDoc(doc(db, 'users', id));
@@ -41,6 +41,7 @@ export default function TabNavigationScreens() {
   useEffect(() => {
     getUserDetails(userLoggedInID).then(userDetails => {
       setUserLogged(userDetails)
+      console.log(userDetails.isAdmin);
     })
   }, []);
 
@@ -78,8 +79,9 @@ export default function TabNavigationScreens() {
         }
       }}/>
       <Tap.Screen name={routProfile} component={ProfileScreen}/>
-      { (userLogged && userLogged.isAdmin) ??
+      { (userLogged != null && userLogged.isAdmin) ?
         <Tap.Screen name={routAdmin} component={CategoryScreen}/>
+        : <></>
       }
     </Tap.Navigator>
   );
