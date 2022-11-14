@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, FlatList, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { db, auth } from '../firebase';
-import { collection, getDocs, where, orderBy, addDoc, query, startAfter, limit, startAt } from "firebase/firestore/lite"; 
+import { collection, getDocs, where, orderBy, addDoc, query, documentId, deleteDoc, setDoc, doc, startAt } from "firebase/firestore/lite"; 
 
 const CartScreen = ({navigation}) => {
   const userLoggedInID = auth.currentUser?.uid
@@ -47,10 +47,26 @@ const CartScreen = ({navigation}) => {
       setCanTap(false);
 
       try {
+        let idList = [];
+        let productList = [];
+        
+        for(let i = 0; i < cart.length; i++) {
+          idList.push(cart[i].productID);
+        }
+
+        const q = query(collection(db, "product"), where(documentId(), "in", idList));
+        const response = await getDocs(q);
+        
+        idList = [];
+        response.forEach((doc) => {
+          idList.push(doc.id)
+          productList.push(doc.data());
+        });
+
         console.log('BEFORE LOOP')
         for(let i = 0; i <=cart.length; i++) {
           let item = cart[i];
-          let tempTotal = item.discount > 0 ? (item.amount * (item.price * ((100 - item.discount) / 100))) : (tempObj.price * tempObj.amount);
+          let tempTotal = item.discount > 0 ? (item.amount * (item.price * ((100 - item.discount) / 100))) : (item.price * item.amount);
           
           let tempObj = {
               userID: item.userID, 
@@ -59,6 +75,7 @@ const CartScreen = ({navigation}) => {
               amount: item.quantity,
               name: item.name,
               price: item.price,
+              status: 'ongoing',
               discount: item.discount,
               total: tempTotal
           }
@@ -70,10 +87,17 @@ const CartScreen = ({navigation}) => {
               setCanTap(true);
           });
 
-          setCart([]);
+          const indexHolder = idList.indexOf(item.productID);
+          let productUpdate = productList[indexHolder]
+          productUpdate.quantity -= item.quantity;
+
+          await setDoc(doc(collection(db, "product"), item.productID), productUpdate);
+          await deleteDoc(doc(db, "cart", item.id))
+
+          getCart();
           setCanTap(true);
         }
-    } catch(err) { console.log(err) }
+    } catch(err) { setCanTap(true); console.log(err); }
 
     }
   }

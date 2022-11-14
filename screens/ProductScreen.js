@@ -56,6 +56,7 @@ const ProductScreen = ({navigation, route}) => {
                 });
             } catch(err) { }
 
+            checkInCart();
             setCanAdd(true);
         }
     }
