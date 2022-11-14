@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { auth } from '../firebase';
 import { db } from '../firebase'
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
-
   
 const ProfileScreen = () => {
 
@@ -30,7 +29,6 @@ const ProfileScreen = () => {
     })
   }, []);
 
-  
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Ionicons name="md-person-circle-outline" size={80} color="#000000" />
