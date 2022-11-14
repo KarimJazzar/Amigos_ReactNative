@@ -29,6 +29,7 @@ const getProductsFromFirebase = async () => {
 };
   
 const EditProduct = ({navigation}) => {
+  const userLoggedInID = auth.currentUser?.uid
     const goBack = () => {
       navigation.goBack()
     }
@@ -37,8 +38,10 @@ const EditProduct = ({navigation}) => {
 
     useEffect(() => {
       getProductsFromFirebase().then(userDetails => {
-        console.log(userDetails);
-        setProducts(userDetails)
+        //console.log(userDetails);
+        const filteredProducts = userDetails.filter(x => x.userID == userLoggedInID);
+        console.log(filteredProducts);
+        setProducts(filteredProducts)
       })
     }, []);
 
