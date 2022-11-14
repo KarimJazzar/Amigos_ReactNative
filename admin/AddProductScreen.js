@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState , Component } from 'react'
-import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight, View , Image, Button} from 'react-native'
+import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight, View , Image, Pressable, Button} from 'react-native'
 import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
@@ -10,33 +10,28 @@ import { format } from 'date-fns'
 import {getStorage, ref, uploadBytes} from 'firebase/storage'
 import * as ImagePicker from 'expo-image-picker';
 import urid from 'urid';
+import { Ionicons } from "@expo/vector-icons";
+import { ScrollView } from 'react-native-gesture-handler';
 
-const AddProductScreen = () => {
-
+const AddProductScreen = ({navigation}) => {
     const [Name, setName] = useState('')
     const [Price, setPrice] = useState(0)
-
     const [Desc, setDesc] = useState('')
     const [Image, setImage] = useState('')
-
     const [Cat, setCat] = useState('')
     const [Qty, setQty] = useState('')
-
     const [Disc, setDisc] = useState('')
-
     const [DiscStart, setDiscStart] = useState('DD-MM-YYYY')
-
     const [DiscEnd, setDiscEnd ] = useState('DD-MM-YYYY')
-
     const [discStartButton, setDiscStartButton ] = useState('Set Discount Start')
-
     const [discEndButton, setDiscEndButton ] = useState('Set Discount End')
-
-
     const [UpdationDate, setUpdationDate ] = useState()
-
     const [catData, setCatData] = useState([]);
 
+
+    const goBack = () => {
+      navigation.goBack()
+    }
 
     const validation = () =>{
       //addToDb();
@@ -130,7 +125,6 @@ const AddProductScreen = () => {
         setQty('')
         setDisc('')
         setImage('')
-    
     }
 
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -203,40 +197,24 @@ const AddProductScreen = () => {
           behavior="padding"
         >
           <View style={styles.inputContainer}>
-    
-          <TextInput
-              placeholder="Name"
-              value={Name}
-              onChangeText={text => setName(text)}
-              style={styles.input}
-            />
 
-        <TextInput
-              placeholder="Price"
-              value={Price}
-              onChangeText={text => setPrice(parseInt(text))}
-              style={styles.input}
-            />
-    
-            <TextInput
-              placeholder="Description"
-              value={Desc}
-              onChangeText={text => setDesc(text)}
-              style={styles.input}
-            />
+          <Pressable onPress={goBack} style={styles.backGroup}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Text style={styles.backTxt}>Back</Text>
+          </Pressable>
 
-              <TouchableOpacity
-              onPress={pickImage}
-              style={styles.button}
-            >
+          <Text style={styles.headline}>Product:</Text>
+
+          <ScrollView>
+          <TextInput placeholder="Name" value={Name} onChangeText={text => setName(text)} style={styles.input}/>
+          <TextInput placeholder="Price" value={Price} onChangeText={text => setPrice(parseInt(text))} style={styles.input}/>
+          <TextInput placeholder="Description" value={Desc} onChangeText={text => setDesc(text)} style={styles.input}/>
+
+          <TouchableOpacity onPress={pickImage} style={styles.button}>
               <Text style={styles.buttonText}>Select Product Image</Text>
-            </TouchableOpacity> 
+          </TouchableOpacity> 
       
-          </View>
-          <View style={styles.inputContainer}>
-
           <SearchableDropdown
-
           style={styles.container}
         //   onTextChange={(text) => console.log(text)}
           onItemSelect={(item) => {
@@ -282,57 +260,19 @@ const AddProductScreen = () => {
           // To remove the underline from the android input
         />
 
-<View style={styles.inputContainer}>
+
+        <TextInput placeholder="Product Quantity" value={Qty} onChangeText={text => setQty(parseInt(text))} style={styles.input} />
+        <TextInput placeholder="Product Discount" value={Disc} onChangeText={text => setDisc(parseInt(text))} style={styles.input}/>
+
     
-    <TextInput
-        placeholder="Product Quantity"
-        value={Qty}
-        onChangeText={text => setQty(parseInt(text))}
-        style={styles.input}
-      />
-
-<TextInput
-        placeholder="Product Discount"
-        value={Disc}
-        onChangeText={text => setDisc(parseInt(text))}
-        style={styles.input}
-      />
-
-
-
-<Button title={discStartButton} onPress={showDatePicker} />
-<DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-        
-      />
-
-<Button title={discEndButton} onPress={showDatePicker2} />
-<DateTimePickerModal
-        isVisible={isDatePickerVisible2}
-        mode="date"
-        onConfirm={handleConfirm2}
-        onCancel={hideDatePicker2}
-      />
-
-
-    </View>
-
-        </View>
-    
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={validation}
-              style={styles.button}
-            >
+        <TouchableOpacity onPress={validation} style={styles.button}>
               <Text style={styles.buttonText}>Add Product</Text>
-            </TouchableOpacity>
+        </TouchableOpacity>
            
+        </ScrollView>
           </View>
-        </KeyboardAvoidingView>
-      )
+    </KeyboardAvoidingView>
+  )
 };
   
 export default AddProductScreen;
@@ -340,11 +280,34 @@ export default AddProductScreen;
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      backgroundColor: '#000',
+      paddingTop: 35,
+      paddingHorizontal: 15
+    },
+    backGroup: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
       alignItems: 'center',
+      marginBottom: 30,
+      marginTop: 15
+    },
+    backTxt: {
+      color: '#fff',
+      fontSize: 20,
+      fontWeight: 'bold',
+      paddingLeft: 5
+    },
+    headline: {
+      fontWeight: 'bold',
+      fontSize: 25,
+      color: '#fff',
+      marginBottom: 15
     },
     inputContainer: {
-      width: '80%'
+      width: '100%',
+      marginBottom: 10
     },
     input: {
       backgroundColor: 'white',
@@ -352,9 +315,10 @@ const styles = StyleSheet.create({
       paddingVertical: 10,
       borderRadius: 10,
       marginTop: 5,
+      marginBottom: 10
     },
     buttonContainer: {
-      width: '60%',
+      width: '100%',
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 40,
