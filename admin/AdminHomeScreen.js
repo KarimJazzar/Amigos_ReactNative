@@ -25,7 +25,7 @@ const AdminHomeScreen = ({navigation}) => {
                     <Text style={styles.adminTxt}>Create Product</Text>
                 </Pressable>
 
-                <Pressable style={styles.adminBtn}>
+                <Pressable onPress={() => goToPage('EditProduct')} style={styles.adminBtn}>
                     <Text style={styles.adminTxt}>Edit Product</Text>
                 </Pressable>
 
