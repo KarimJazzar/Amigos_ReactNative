@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import { Text, View, StyleSheet, FlatList, Button, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, FlatList, Pressable, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/core'
 import { db } from '../firebase'
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
+import { Ionicons } from '@expo/vector-icons';
 
   async function getCustomersFromFirebase() {
     let students = []
@@ -34,9 +35,12 @@ import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs,
   );
 
 const CustomerInformation = ({navigation}) => {
+    const goBack = () => {
+      navigation.goBack()
+    }
 
     const pressDetails = (customer) => {
-        navigation.navigate('CustomerDetails',customer);
+        navigation.navigate('CustomerDetail',customer);
       }
 
     const [customers,setCustomers] = useState([]);
@@ -53,30 +57,67 @@ const CustomerInformation = ({navigation}) => {
     }, []);
 
     return (
-        <View styles={styles.container}>
-        <FlatList data={customers}
-          renderItem = {renderItem}
-          />
+        <View style={styles.container}>
+          <Pressable onPress={goBack} style={styles.backGroup}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Text style={styles.backTxt}>Back</Text>
+          </Pressable>
+
+          <Text style={styles.headline}>Customers:</Text>
+          
+          <FlatList style={styles.list} data={customers}
+            renderItem = {renderItem}
+            />
         </View>
     );
   }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      paddingTop: 60,
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    backgroundColor: '#000',
+    paddingTop: 35,
+    paddingHorizontal: 15
+  },
+  list: {
+    flex: 1,
+    height: '100%',
+    width: '100%'
+  },
+  backGroup: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: 30,
+    marginTop: 15
+  },
+  backTxt: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    paddingLeft: 5
+  },
+  headline: {
+    fontWeight: 'bold',
+    fontSize: 25,
+    color: '#fff',
+    marginBottom: 15
+  },
+  item: {
+      backgroundColor: '#095A47',
+      padding: 20,
+      marginVertical: 8,
+      borderRadius: 5
     },
-    item: {
-        backgroundColor: 'cyan',
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
-      },
-      title: {
-        fontSize: 12,
-      },
-  });
+  title: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+});
 
-  export default CustomerInformation
+export default CustomerInformation
 
   

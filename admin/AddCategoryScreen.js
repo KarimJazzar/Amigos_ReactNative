@@ -49,7 +49,7 @@ const AddCategoryScreen = ({navigation}) => {
         >
           <View style={styles.inputContainer}>
 
-          <Pressable style={styles.backGroup}>
+          <Pressable onPress={goBack} style={styles.backGroup}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
             <Text style={styles.backTxt}>Back</Text>
           </Pressable>
