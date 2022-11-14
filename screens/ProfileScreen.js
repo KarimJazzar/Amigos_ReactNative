@@ -34,6 +34,10 @@ const ProfileScreen = () => {
       .catch(error => alert(error.message))
   }
 
+  const handleUpdate = () => {
+        navigation.replace("Update")
+  }
+
   useEffect(() => {
     getUserDetails(userLoggedInID).then(userDetails => {
       setUserLogged(userDetails)
@@ -51,6 +55,13 @@ const ProfileScreen = () => {
         style={styles.item}
       >
         <Text style={styles.backTxt}>Sign out</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={handleUpdate}
+        style={styles.item}
+      >
+        <Text style={styles.backTxt}>Update Profile</Text>
       </TouchableOpacity>
       
     </View>
