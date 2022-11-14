@@ -105,7 +105,7 @@ const ProductScreen = ({navigation, route}) => {
                 </> : <></>
                 }
               </View>
-              <Text style={[styles.txt, styles.name]}>{product.name} {cartID}</Text>
+              <Text style={[styles.txt, styles.name]}>{product.name}</Text>
               <View style={styles.priceGroup}>
                 {product.discount > 0 ?
                 <>
