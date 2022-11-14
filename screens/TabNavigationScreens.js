@@ -17,9 +17,9 @@ import { auth } from '../firebase';
 import { db } from '../firebase'
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 
-
-
   
+
+
 function TabNavigationScreens(){
 
   const userLoggedInID = auth.currentUser?.uid
