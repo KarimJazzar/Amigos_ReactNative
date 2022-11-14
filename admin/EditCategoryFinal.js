@@ -67,7 +67,7 @@ const EditCategoryFinal = ({navigation, route}) => {
 
           <TextInput
               placeholder="Category Name"
-              value={CatName}
+              defaultValue={cat.name}
               onChangeText={text => setCatName(text)}
               style={styles.input}
             />
