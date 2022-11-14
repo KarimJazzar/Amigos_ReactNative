@@ -79,6 +79,7 @@ const ProductScreen = ({navigation, route}) => {
             
             response.forEach((doc) => {
                 setCartID(doc.id);
+                setQTY(doc.data().amount);
                 setInCart(true);
             })
         } catch(err) { }
