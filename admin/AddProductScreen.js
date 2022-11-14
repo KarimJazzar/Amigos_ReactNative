@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState , Component } from 'react'
-import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight, View , Image, Pressable, Button} from 'react-native'
+import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight, View , Image, Pressable, Button, LogBox} from 'react-native'
 import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
@@ -12,6 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import urid from 'urid';
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from 'react-native-gesture-handler';
+
 
 const AddProductScreen = ({navigation}) => {
     const [Name, setName] = useState('')
@@ -93,6 +94,7 @@ const AddProductScreen = ({navigation}) => {
 
 
     const addToDb = () => {
+      const userLoggedInID = auth.currentUser?.uid
       console.log("dio")
         try {
           const docRef = addDoc(collection(db, "product"), {
@@ -105,6 +107,7 @@ const AddProductScreen = ({navigation}) => {
             discount: Disc,
             discount_start: DiscStart,
             discount_end: DiscEnd,
+            userID:userLoggedInID
             //creation_date: new Date(),
             //updated_date: new Date(),
           });
@@ -205,34 +208,27 @@ const AddProductScreen = ({navigation}) => {
 
           <Text style={styles.headline}>Product:</Text>
 
-          <ScrollView>
+          
           <TextInput placeholder="Name" value={Name} onChangeText={text => setName(text)} style={styles.input}/>
           <TextInput placeholder="Price" value={Price} onChangeText={text => setPrice(parseInt(text))} style={styles.input}/>
           <TextInput placeholder="Description" value={Desc} onChangeText={text => setDesc(text)} style={styles.input}/>
 
-          <TouchableOpacity onPress={pickImage} style={styles.button}>
-              <Text style={styles.buttonText}>Select Product Image</Text>
-          </TouchableOpacity> 
-      
           <SearchableDropdown
           style={styles.container}
-        //   onTextChange={(text) => console.log(text)}
+          onTextChange={(text) => console.log(text)}
           onItemSelect={(item) => {
             console.log(item)
             setCat(item.name)
-            //console.log(Cat)
           }}
           containerStyle={{ padding: 5 }}
           value={Cat}
           textInputStyle={{
-            //inserted text style
             padding: 12,
             borderWidth: 1,
             borderColor: '#ccc',
             backgroundColor: '#FAF7F6',
           }}
           itemStyle={{
-            //single dropdown item style
             padding: 10,
             marginTop: 2,
             backgroundColor: '#FAF9F8',
@@ -241,25 +237,18 @@ const AddProductScreen = ({navigation}) => {
             borderWidth: 1,
           }}
           itemTextStyle={{
-            //text style of a single dropdown item
             color: '#000',
           }}
           itemsContainerStyle={{
-            //items container style you can pass maxHeight
-            //to restrict the items dropdown hieght
-            maxHeight: '50%',
+            
           }}
           items={catData}
-          //mapping of item array
-          //multi={true}
-          
-          defaultIndex={2}
           placeholder="Search for catergory.."
-          // Place holder for the search input
-          // Reset textInput Value with true and false state
-          // To remove the underline from the android input
         />
 
+          <TouchableOpacity onPress={pickImage} style={styles.button}>
+              <Text style={styles.buttonText}>Select Product Image</Text>
+          </TouchableOpacity> 
 
         <TextInput placeholder="Product Quantity" value={Qty} onChangeText={text => setQty(parseInt(text))} style={styles.input} />
         <TextInput placeholder="Product Discount" value={Disc} onChangeText={text => setDisc(parseInt(text))} style={styles.input}/>
@@ -269,7 +258,7 @@ const AddProductScreen = ({navigation}) => {
               <Text style={styles.buttonText}>Add Product</Text>
         </TouchableOpacity>
            
-        </ScrollView>
+        
           </View>
     </KeyboardAvoidingView>
   )
