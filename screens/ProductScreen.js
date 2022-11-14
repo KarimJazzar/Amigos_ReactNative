@@ -38,7 +38,7 @@ const ProductScreen = ({navigation, route}) => {
                     <Text style={[styles.txt, styles.priceLabel]}>Price: </Text>
                     <Text style={[styles.txt, styles.priceLabel, {paddingRight: 0, textDecorationLine: 'line-through'}]}>${product.price}</Text>
                     <Text style={[styles.txt, styles.priceLabel, {paddingHorizontal: 5 }]}> - </Text>
-                    <Text style={[styles.txt, styles.price]}>${product.price}</Text>
+                    <Text style={[styles.txt, styles.price]}>${(product.price * ((100 - product.discount) / 100)).toFixed(2)}</Text>
                 </>
                 :
                 <>
