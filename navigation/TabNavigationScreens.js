@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { createAppContainer } from "react-navigation";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import HomeScreen from '../screens/HomeScreen';
+import StoreNavigation from '../navigation/StoreNavigation';
 import ProfileScreen from '../screens/ProfileScreen';
 import CartScreen from '../screens/CartScreen';
 import Admin from './AdminNavigation'
@@ -67,7 +67,7 @@ export default function TabNavigationScreens() {
         return <Ionicons name={iconName} size={24} color={iconColor}/>
       },
     })}>
-      <Tap.Screen name={routHome} component={HomeScreen}/>
+      <Tap.Screen name={routHome} component={StoreNavigation}/>
       <Tap.Screen name={routCart} component={CartScreen} options={{ 
         tabBarBadge: 3, 
         tabBarBadgeStyle: { 
