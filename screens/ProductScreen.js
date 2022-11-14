@@ -1,19 +1,93 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation } from '@react-navigation/core'
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View, TextInput, ScrollView, Pressable, FlatList, Image } from 'react-native'
-import { auth } from '../firebase'
 import { Ionicons } from "@expo/vector-icons";
-import { MaterialIcons } from '@expo/vector-icons'; 
 import SafeAreaView from 'react-native-safe-area-view';
 import { AntDesign } from '@expo/vector-icons';
+import { db, auth } from '../firebase';
+import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
+import { async } from "@firebase/util";
 
 const ProductScreen = ({navigation, route}) => {
+    const userLoggedInID = auth.currentUser?.uid
     const [product, getProduct] = useState(route.params.product);
     const [qty, setQTY] = useState(1);
+    const [canAdd, setCanAdd] = useState(true);
+    const [inCart, setInCart] = useState(false);
+    const [cartID, setCartID] = useState('');
 
     const goBack = () => {
         navigation.goBack()
     }
+
+    const addItem = () => {
+        let newQty = qty + 1;
+        newQty = newQty > product.quantity ? product.quantity : newQty;
+        setQTY(newQty);
+    }
+
+    const removeItem = () => {
+        let newQty = qty - 1;
+        newQty = newQty < 1 ? 1 : newQty;
+        setQTY(newQty);
+    }
+
+    const addToCart = async () => {
+        if(canAdd) {
+            setCanAdd(false);
+          
+            try {
+                let tempObj = {
+                    userID: userLoggedInID, 
+                    amount: qty,
+                    productID: product.id,
+                    name: product.name,
+                    prince: product.price,
+                    discount: product.discount,
+                    quantity: product.quantity
+                }
+    
+                await addDoc(collection(db, "cart"), tempObj).then(() => { 
+                    console.log('data submitted');
+                    checkInCart();
+                }).catch((error) => {
+                    console.log(error);
+                });
+            } catch(err) { }
+
+            setCanAdd(true);
+        }
+    }
+
+    const updateCart = async () => {
+        await setDoc(doc(collection(db, "cart"), cartID), {
+            userID: userLoggedInID, 
+            amount: qty,
+            productID: product.id,
+            name: product.name,
+            prince: product.price,
+            discount: product.discount,
+            quantity: product.quantity
+        });
+    }
+
+    const checkInCart = async () => {
+        console.log(userLoggedInID, product.id)
+
+        try {
+            const q = query(collection(db, "cart"),  where("userID", "==", userLoggedInID), where("productID", "==", product.id));
+            const response = await getDocs(q);
+            
+            response.forEach((doc) => {
+                setCartID(doc.id);
+                setQTY(doc.data().amount);
+                setInCart(true);
+            })
+        } catch(err) { }
+    }
+
+    useEffect(() => {
+        checkInCart();
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -52,21 +126,28 @@ const ProductScreen = ({navigation, route}) => {
                 <>
                   <View style={styles.controlGroup}>
                     <View style={styles.controlRow}>
-                      <Pressable style={[styles.controlBtn, {opacity: qty == 1 ? 0.5 : 1}]}>
+                      <Pressable onPress={removeItem} style={[styles.controlBtn, {opacity: qty == 1 ? 0.5 : 1}]}>
                         <AntDesign name="minus" size={20} color="#fff" />
                       </Pressable>
 
                       <Text style={styles.controlTxt}>{qty}</Text>
 
-                      <Pressable style={[styles.controlBtn, {opacity: qty == product.qty ? 0.5 : 1}]}>
+                      <Pressable onPress={addItem} style={[styles.controlBtn, {opacity: qty == product.quantity ? 0.5 : 1}]}>
                         <AntDesign name="plus" size={20} color="#fff" />
                       </Pressable>
                     </View>
-                    
-                    <Pressable style={styles.controlCart}>
-                      <Text style={[styles.txt, {fontWeight: 'bold', paddingLeft: 0, paddingRight: 2}]}>Add to Cart</Text>
-                      <Ionicons name='md-cart' size={24} color='#fff'/>
-                    </Pressable>
+                    { inCart ? 
+                        <Pressable onPress={updateCart} style={styles.controlCart}>
+                            <Text style={[styles.txt, {fontWeight: 'bold', paddingLeft: 0, paddingRight: 2}]}>Update to Cart</Text>
+                            <Ionicons name='md-cart' size={24} color='#fff'/>
+                        </Pressable>
+                    :
+                        <Pressable onPress={addToCart} style={styles.controlCart}>
+                            <Text style={[styles.txt, {fontWeight: 'bold', paddingLeft: 0, paddingRight: 2}]}>Add to Cart</Text>
+                            <Ionicons name='md-cart' size={24} color='#fff'/>
+                        </Pressable>
+                    }
+
                   </View>
                 </>
               :
@@ -74,7 +155,7 @@ const ProductScreen = ({navigation, route}) => {
               }
 
               { product.quantity <= 5 ?
-                <Text style={styles.productLeft}>{product.qty} Product Left</Text>
+                <Text style={styles.productLeft}>{product.quantity} Product Left</Text>
                 : <></>
               }
 
