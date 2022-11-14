@@ -16,12 +16,7 @@ const AddCategoryScreen = () => {
 
         if(CatName==''){
             Alert.alert("Enter Category")
-        }
-        else if(CatDesc==''){
-            Alert.alert("Enter Description")
-
-        }
-        else{
+        }else{
             addToDb()
            
 
@@ -31,8 +26,8 @@ const AddCategoryScreen = () => {
     const addToDb = () => {
         try {
           const docRef = addDoc(collection(db, "category"), {
-            catName: CatName,
-            catDesc: CatDesc,
+            name: CatName,
+            //catDesc: CatDesc,
           });
 
           clearInputs()
@@ -64,13 +59,7 @@ const AddCategoryScreen = () => {
               onChangeText={text => setCatName(text)}
               style={styles.input}
             />
-    
-            <TextInput
-              placeholder="Category Description"
-              value={CatDesc}
-              onChangeText={text => setCatDesc(text)}
-              style={styles.input}
-            />
+  
           </View>
     
           <View style={styles.buttonContainer}>

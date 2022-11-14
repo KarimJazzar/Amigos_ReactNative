@@ -1,17 +1,15 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState , Component } from 'react'
-import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View , Image} from 'react-native'
+import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight, View , Image, Button} from 'react-native'
 import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
 import SearchableDropdown from 'react-native-searchable-dropdown';
-import * as ImagePicker from "react-native-image-picker"
-import DatePicker from 'react-native-datepicker';
-
-
-
-
-
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { format } from 'date-fns'
+import {getStorage, ref, uploadBytes} from 'firebase/storage'
+import * as ImagePicker from 'expo-image-picker';
+import urid from 'urid';
 
 const AddProductScreen = () => {
 
@@ -30,53 +28,18 @@ const AddProductScreen = () => {
 
     const [DiscEnd, setDiscEnd ] = useState('DD-MM-YYYY')
 
-    const [CreationDate, setCreationDate ] = useState()
+    const [discStartButton, setDiscStartButton ] = useState('Set Discount Start')
+
+    const [discEndButton, setDiscEndButton ] = useState('Set Discount End')
+
 
     const [UpdationDate, setUpdationDate ] = useState()
 
     const [catData, setCatData] = useState([]);
 
-    
-    chooseImage = () => {
-        let options = {
-          title: 'Select Image',
-          customButtons: [
-            { name: 'customOptionKey', title: 'Choose Photo from Custom Option' },
-          ],
-          storageOptions: {
-            skipBackup: true,
-            path: 'images',
-          },
-        };
-        
-        ImagePicker.showImagePicker(options, (response) => {
-          console.log('Response = ', response);
-    
-          if (response.didCancel) {
-            console.log('User cancelled image picker');
-          } else if (response.error) {
-            console.log('ImagePicker Error: ', response.error);
-          } else if (response.customButton) {
-            console.log('User tapped custom button: ', response.customButton);
-            alert(response.customButton);
-          } else {
-            const source = { uri: response.uri };
-    
-            // You can also display the image using data:
-            // const source = { uri: 'data:image/jpeg;base64,' + response.data };
-            // alert(JSON.stringify(response));s
-            console.log('response', JSON.stringify(response));
-            // this.setState({
-            //   filePath: response,
-            //   fileData: response.data,
-            //   fileUri: response.uri
-            // });
-          }
-        });
-      }
-
 
     const validation = () =>{
+      //addToDb();
 
         if(Name==''){
             Alert.alert("Enter Name")
@@ -100,67 +63,56 @@ const AddProductScreen = () => {
         else if(Disc!=''){
             if(DiscStart==''){
                 Alert.alert("Select Discount Start Date")
-
-            } else if(DiscEnd!=''){
+            } else if(DiscEnd==''){
                 Alert.alert("Select Discount End Date")
-
-
+            }else{
+              addToDb()
             }
-
         }
         else{
             addToDb()
-           
-
         }
 
        
     }
 
-
-
-    const getDataFromFirebase = async () => {
+    const getCategoriesFromFirebase = async () => {
         const querySnapshot = await getDocs(collection(db, "category"));
         let arr = []
         let i = 0;
         querySnapshot.forEach((doc) => {
         //   setFirebaseData((prevData) => [...prevData, doc.data()]);
-        arr.push(doc.data().catName)
-        console.log(doc.data().catName)
-        
-          
+        arr.push({name: doc.data().name})
+        //console.log(doc.data().catName)
         });
-        setCatData(arr)
-        
+        //setCatData(arr)
+        return arr;
       };
 
-    useEffect(()=> {
-        getDataFromFirebase();
-
-    },[])
+      useEffect(() => {
+        getCategoriesFromFirebase().then(userDetails => {
+          console.log(userDetails);
+          setCatData(userDetails)
+        })
+      }, []);
 
 
     const addToDb = () => {
+      console.log("dio")
         try {
           const docRef = addDoc(collection(db, "product"), {
             name: Name,
             price: Price,
             description: Desc,
-            Image: Image,
+            url: Image,
             category: Cat,
             quantity: Qty,
             discount: Disc,
             discount_start: DiscStart,
             discount_end: DiscEnd,
-            creation_date: new Date(),
-            updated_date: new Date(),
-           
-
+            //creation_date: new Date(),
+            //updated_date: new Date(),
           });
-
-         
-      
-          
    
           Alert.alert("Added Successfully")
         //   clearInputs()
@@ -181,6 +133,69 @@ const AddProductScreen = () => {
     
     }
 
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [isDatePickerVisible2, setDatePickerVisibility2] = useState(false);
+    
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    console.warn("A date has been pickeddd: ", date);
+    let datePicked  = format(date, 'dd/MM/yyyy')
+    //console.log(datePicked)
+    setDiscStart(datePicked)
+    setDiscStartButton(datePicked)
+    hideDatePicker();
+  };
+
+  const showDatePicker2 = () => {
+    setDatePickerVisibility2(true);
+  };
+
+  const hideDatePicker2 = () => {
+    setDatePickerVisibility2(false);
+  };
+
+  const handleConfirm2 = (date) => {
+    console.warn("A date has been picked: ", date);
+    let datePicked  = format(date, 'dd/MM/yyyy')
+    console.log(datePicked)
+    setDiscEnd(datePicked)
+    setDiscEndButton(datePicked)
+    hideDatePicker2();
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      const storage = getStorage(); //the storage itself
+      let randomIDImage = urid() + ".jpg"
+      const refer = ref(storage, randomIDImage); //how the image will be addressed inside the storage
+      
+      //convert image to array of bytes
+      const img = await fetch(result.uri);
+      const bytes = await img.blob();
+    
+      const url = "gs://storeprojectreactnative.appspot.com/"+ randomIDImage;
+      console.log(url)
+      setImage(url)
+      await uploadBytes(refer, bytes); //upload images
+      
+      
+    }
+  };
 
     return (
         <KeyboardAvoidingView
@@ -210,22 +225,12 @@ const AddProductScreen = () => {
               style={styles.input}
             />
 
-              <TouchableOpacity onPress={() =>
-            ImagePicker.launchImageLibrary(
-              {
-                mediaType: 'photo',
-                includeBase64: false,
-                maxHeight: 200,
-                maxWidth: 200,
-              },
-              (response) => {
-                console.log(response);
-                // this.setState({resourcePath: response});
-              },
-            )
-          }  style={styles.btnSection}  >
-                <Text style={styles.input}>Choose File</Text>
-              </TouchableOpacity>
+              <TouchableOpacity
+              onPress={pickImage}
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Select Product Image</Text>
+            </TouchableOpacity> 
       
           </View>
           <View style={styles.inputContainer}>
@@ -234,7 +239,11 @@ const AddProductScreen = () => {
 
           style={styles.container}
         //   onTextChange={(text) => console.log(text)}
-          onItemSelect={(item) => setCat(item)}
+          onItemSelect={(item) => {
+            console.log(item)
+            setCat(item.name)
+            //console.log(Cat)
+          }}
           containerStyle={{ padding: 5 }}
           value={Cat}
           textInputStyle={{
@@ -262,14 +271,10 @@ const AddProductScreen = () => {
             //to restrict the items dropdown hieght
             maxHeight: '50%',
           }}
-
-
           items={catData}
-
-
-          
-          
           //mapping of item array
+          //multi={true}
+          
           defaultIndex={2}
           placeholder="Search for catergory.."
           // Place holder for the search input
@@ -293,64 +298,24 @@ const AddProductScreen = () => {
         style={styles.input}
       />
 
-<DatePicker
-          style={styles.datePickerStyle}
-          date={DiscStart} //initial date from state
-          mode="date" //The enum of date, datetime and time
-          placeholder="Discount Start Date"
-          format="DD-MM-YYYY"
-          minDate="01-01-2016"
-          maxDate="01-01-2024"
-          confirmBtnText="Confirm"
-          cancelBtnText="Cancel"
-          customStyles={{
-            dateIcon: {
-              //display: 'none',
-              position: 'absolute',
-              left: 0,
-              top: 4,
-              marginLeft: 0,
-            },
-            dateInput: {
-              marginLeft: 36,
-            },
-          }}
-          onDateChange={(date) => {
-            setDiscStart(date);
-          }}
-        />
 
 
-<DatePicker
-          style={styles.datePickerStyle}
-          date={DiscEnd} //initial date from state
-          mode="date" //The enum of date, datetime and time
-          placeholder="Discount end Date"
-          format="DD-MM-YYYY"
-          minDate="01-01-2016"
-          maxDate="01-01-2024"
-          confirmBtnText="Confirm"
-          cancelBtnText="Cancel"
-          customStyles={{
-            dateIcon: {
-              //display: 'none',
-              position: 'absolute',
-              left: 0,
-              top: 4,
-              marginLeft: 0,
-            },
-            dateInput: {
-              marginLeft: 36,
-            },
-          }}
-          onDateChange={(date) => {
-            setDiscEnd(date);
-          }}
-        />
+<Button title={discStartButton} onPress={showDatePicker} />
+<DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        
+      />
 
-
-
-     
+<Button title={discEndButton} onPress={showDatePicker2} />
+<DateTimePickerModal
+        isVisible={isDatePickerVisible2}
+        mode="date"
+        onConfirm={handleConfirm2}
+        onCancel={hideDatePicker2}
+      />
 
 
     </View>
