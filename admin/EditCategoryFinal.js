@@ -21,6 +21,16 @@ const EditCategoryFinal = ({navigation, route}) => {
         }
     }
 
+    async function deleteCategory() {
+  
+        await deleteDoc(doc(db, "category", cat.id))
+        Alert.alert("Category Deleted Successfully")
+        navigation.pop();
+        navigation.pop();
+        navigation.navigate("EditCategory")
+
+    }
+
     async function editCategory() {
         //const querySnapshot = await getDocs(collection(db, "Students"));
   
@@ -70,6 +80,13 @@ const EditCategoryFinal = ({navigation, route}) => {
               style={styles.button}
             >
               <Text style={styles.buttonText}>Edit Category</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={deleteCategory}
+              style={styles.button2}
+            >
+              <Text style={styles.buttonText}>Delete Category</Text>
             </TouchableOpacity>
            
           </View>
@@ -130,6 +147,14 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       alignItems: 'center',
     },
+    button2: {
+        backgroundColor: 'red',
+        width: '100%',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 10
+      },  
     buttonOutline: {
       backgroundColor: 'white',
       marginTop: 5,

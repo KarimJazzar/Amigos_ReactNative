@@ -33,8 +33,9 @@ const AddCategoryScreen = ({navigation}) => {
           
           console.log("Document written with ID: ", docRef.id);
         } catch (e) {
-          console.error("Error adding document: "+ formValues.student_id, e);
+          //console.error("Error adding document: ");
         }
+        Alert.alert("Added Successfully")
       };
 
     const clearInputs = () => {
