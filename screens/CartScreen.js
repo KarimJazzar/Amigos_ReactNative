@@ -4,11 +4,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { db, auth } from '../firebase';
 import { collection, getDocs, where, orderBy, query, startAfter, limit, startAt } from "firebase/firestore/lite"; 
 
-const CartScreen = () => {
+const CartScreen = ({navigation}) => {
   const userLoggedInID = auth.currentUser?.uid
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
-  
+  const [canTap, setCanTap] = useState(true);
+
   const getCart = async () => {
     try {
       const q = query(collection(db, "cart"),  where("userID", "==", userLoggedInID));
@@ -41,9 +42,40 @@ const CartScreen = () => {
   } catch(err) { console.log(err); }
   }
 
+  const placeOrder = async () => {
+    if(canTap) {
+      setCanTap(false);
+
+      try {
+        let tempObj = {
+            userID: userLoggedInID, 
+            amount: qty,
+            productID: product.id,
+            image: '' + product.img,
+            name: product.name,
+            price: product.price,
+            discount: product.discount,
+            quantity: product.quantity
+        }
+
+        await addDoc(collection(db, "cart"), tempObj).then(() => { 
+            console.log('data submitted');
+            checkInCart();
+        }).catch((error) => {
+            console.log(error);
+        });
+    } catch(err) { }
+
+    }
+  }
+
   useEffect(() => {
+  const unsubscribe = navigation.addListener('focus', () => {
     getCart();
-}, []);
+  });
+
+  return unsubscribe;
+}, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -54,16 +86,23 @@ const CartScreen = () => {
         <View style={styles.card}>
           <Text style={styles.nameTxt}>{item.name}</Text>
           {item.discount > 0 ?
-            <Text style={styles.priceTxt}>${(item.price * ((100 - item.discount) / 100)).toFixed(2)} x {item.amount} = ${(item.amount * (item.price * ((100 - item.discount) / 100))).toFixed(2)}</Text>
+          <View style={styles.priceRow}>
+            <Text style={[styles.priceTxt]}>{item.amount} Items  x  ${(item.price * ((100 - item.discount) / 100)).toFixed(2)}</Text>
+            <Text style={styles.priceTxt}>Total: ${(item.amount * (item.price * ((100 - item.discount) / 100))).toFixed(2)}</Text>
+          </View>
           :
-            <Text style={styles.priceTxt}>${item.price} x {item.amount} = ${item.amount * item.price}</Text>
+          <View style={styles.priceRow}>
+            <Text style={styles.priceTxt}>{item.amount} Items  x  ${item.price}</Text>
+            <Text style={styles.priceTxt}>Total: ${item.amount * item.price}</Text>
+          </View>
           }
         </View>
       }
       ListFooterComponent={
         <View style={styles.result}>
           <Text style={styles.nameTxt}>Total: ${total.toFixed(2)}</Text>
-          <Pressable style={styles.placeBtn}>
+
+          <Pressable onPress={placeOrder} style={styles.placeBtn}>
             <Text style={styles.placeTxt}>Place Order</Text>
           </Pressable>
         </View>
@@ -97,17 +136,20 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 15,
     backgroundColor: 'rgba(255,255,255,0.15)',
-    padding: 10
+    padding: 10,
+    borderRadius: 5
   },
   nameTxt: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff'
+    color: '#fff',
+    marginBottom: 5
   },
   priceTxt: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff'
+    color: '#fff',
+    marginBottom: 5
   },
   placeBtn: {
     width: '100%',
@@ -115,12 +157,16 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingVertical: 15,
     borderRadius: 5,
-    marginTop: 20
+    marginTop: 20,
   },
   placeTxt: {
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center'
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   }
 });
 
