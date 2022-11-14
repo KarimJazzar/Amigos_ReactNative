@@ -1,25 +1,23 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
-import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, KeyboardAvoidingView, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth, db } from '../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { set, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
-
+import { Ionicons } from '@expo/vector-icons';
   
-const AddCategoryScreen = () => {
-
+const AddCategoryScreen = ({navigation}) => {
     const [CatName, setCatName] = useState('')
-    const [CatDesc, setCatDesc] = useState('')
 
+    const goBack = () => {
+      navigation.goBack()
+    }
 
     const validation = () =>{
-
         if(CatName==''){
             Alert.alert("Enter Category")
         }else{
             addToDb()
-           
-
         }
     }
 
@@ -42,9 +40,7 @@ const AddCategoryScreen = () => {
     const clearInputs = () => {
         setCatName('')
         setCatDesc('')
-
     }
-
 
     return (
         <KeyboardAvoidingView
@@ -52,7 +48,14 @@ const AddCategoryScreen = () => {
           behavior="padding"
         >
           <View style={styles.inputContainer}>
-    
+
+          <Pressable style={styles.backGroup}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Text style={styles.backTxt}>Back</Text>
+          </Pressable>
+
+          <Text style={styles.headline}>Category:</Text>
+
           <TextInput
               placeholder="Category Name"
               value={CatName}
@@ -80,11 +83,33 @@ export default AddCategoryScreen;
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      backgroundColor: '#000',
+      paddingTop: 35,
+      paddingHorizontal: 15
+    },
+    backGroup: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
       alignItems: 'center',
+      marginBottom: 30,
+      marginTop: 15
+    },
+    backTxt: {
+      color: '#fff',
+      fontSize: 20,
+      fontWeight: 'bold',
+      paddingLeft: 5
+    },
+    headline: {
+      fontWeight: 'bold',
+      fontSize: 25,
+      color: '#fff',
+      marginBottom: 15
     },
     inputContainer: {
-      width: '80%'
+      width: '100%'
     },
     input: {
       backgroundColor: 'white',
@@ -94,13 +119,13 @@ const styles = StyleSheet.create({
       marginTop: 5,
     },
     buttonContainer: {
-      width: '60%',
+      width: '100%',
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 40,
     },
     button: {
-      backgroundColor: '#0782F9',
+      backgroundColor: '#095A47',
       width: '100%',
       padding: 15,
       borderRadius: 10,

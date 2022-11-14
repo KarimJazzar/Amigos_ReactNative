@@ -5,13 +5,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { createAppContainer } from "react-navigation";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CartScreen from '../screens/CartScreen';
 import CategoryScreen from '../screens/CategoryScreen';
 import AdminHomeScreen from '../screens/AdminHomeScreen';
-
+import Admin from './AdminNavigation'
 import { auth } from '../firebase';
 import { db } from '../firebase'
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
@@ -80,7 +79,7 @@ export default function TabNavigationScreens() {
       }}/>
       <Tap.Screen name={routProfile} component={ProfileScreen}/>
       { (userLogged != null && userLogged.isAdmin) ?
-        <Tap.Screen name={routAdmin} component={CategoryScreen}/>
+        <Tap.Screen name={routAdmin} component={Admin}/>
         : <></>
       }
     </Tap.Navigator>
