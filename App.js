@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from './screens/LoginScreen';
-import TabNavigationScreens from './screens/TabNavigationScreens';
+import TabNavigationScreens from './navigation/TabNavigationScreens';
 import RegisterScreen from './screens/RegisterScreen';
 import AddCategoryScreen from './screens/AddCategoryScreen';
 import CustomerInformation from './screens/CustomerInformation';
@@ -21,7 +21,7 @@ export default function App() {
   return (
     <NavigationContainer>
 
-      <Stack.Navigator>
+<Stack.Navigator screenOptions={ { headerShown: false, headerStyle: { backgroundColor: '#494E44' }} }>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="TabNavigation" component={TabNavigationScreens} /> 
