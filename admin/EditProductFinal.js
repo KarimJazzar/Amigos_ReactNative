@@ -190,6 +190,15 @@ const EditProductFinal = ({navigation, route}) => {
     }
   };
 
+  async function deleteProduct() {
+  
+    await deleteDoc(doc(db, "product", prod.id))
+    Alert.alert("Product Deleted Successfully")
+    navigation.pop();
+    navigation.pop();
+    navigation.navigate("EditProduct")
+
+}
     
     //console.log(prod)
 
@@ -254,6 +263,12 @@ const EditProductFinal = ({navigation, route}) => {
               <Text style={styles.buttonText}>Edit Product</Text>
         </TouchableOpacity>
            
+        <TouchableOpacity
+              onPress={deleteProduct}
+              style={styles.button2}
+            >
+              <Text style={styles.buttonText}>Delete Product</Text>
+            </TouchableOpacity>
         
           </View>
     </KeyboardAvoidingView>
@@ -311,10 +326,18 @@ const styles = StyleSheet.create({
     button: {
       backgroundColor: '#0782F9',
       width: '100%',
-      padding: 15,
+      padding: 10,
       borderRadius: 10,
       alignItems: 'center',
     },
+    button2: {
+        backgroundColor: 'red',
+        width: '100%',
+        padding: 10,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 10
+      },  
     buttonOutline: {
       backgroundColor: 'white',
       marginTop: 5,
