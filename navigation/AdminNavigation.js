@@ -8,6 +8,7 @@ import CustomerInformation from '../admin/CustomerInformation'
 import CustomerDetails from "../admin/CustomerDetails";
 import AddProductScreen from "../admin/AddProductScreen";
 import EditProduct from "../admin/EditProduct";
+import EditCategory from "../admin/EditCategory";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ const AdminScreen = () => {
       <Stack.Screen name="CustomerDetail" component={CustomerDetails}/>
       <Stack.Screen name="AddProduct" component={AddProductScreen}/>
       <Stack.Screen name="EditProduct" component={EditProduct}/>
+      <Stack.Screen name="EditCategory" component={EditCategory}/>
     </Stack.Navigator>
   )
 }
