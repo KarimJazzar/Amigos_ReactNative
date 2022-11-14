@@ -4,14 +4,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from '@expo/vector-icons'; 
 import SafeAreaView from 'react-native-safe-area-view';
 import { db } from '../firebase'
-import { collection, getDocs, where, query, startAt, limit } from "firebase/firestore/lite"; 
+import { collection, getDocs, where, orderBy, query, startAfter, limit, startAt } from "firebase/firestore/lite"; 
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import { async } from "@firebase/util";
 
 const StoreScreen = ({navigation}) => {
     const [categories, setCatgories] = useState([]);
     const [products, setProducts] = useState([]);
-    const [imgageList, setImageList] = useState([]);
+    const [catN, setCatN] = useState(-1);
+    const [keyWord, setKeyWord] = useState('');
+    const [page, setPage] = useState(1);
+    const [canTap, setCanTap] = useState(true);
 
     const getAllCategories = async () => {
         try {
@@ -28,72 +30,70 @@ const StoreScreen = ({navigation}) => {
 
     const getAllProducts = async () => {
         try {
-            const q = query(collection(db, "product"), limit(10));
-
+            const q = query(collection(db, "product"), orderBy('name'), limit(10));
             const response = await getDocs(q);
-            let tempDoc = [];
+            generateProductList(response);
+        } catch(err) { console.log(err); }
+    }
 
-            response.forEach((doc) => {
-                const data = doc.data();
+    const getProductByPage = async (value) => {
+        setCanTap(false);
         
-                tempDoc.push({
-                    id: doc.id,
-                    img: '',
-                    category: data.category,
-                    description: data.description,
-                    discount: data.discount,
-                    discount_end: data.discount_end,
-                    discount_start: data.discount_start,
-                    name: data.name,
-                    price: data.price,
-                    quantity: data.quantity,
-                    url: data.url,
-                    userID: data.userID
-                });
-            });
+        console.log(value);
+        
+        try {
+            const q = query(collection(db, "product"), orderBy('name'), limit(10), startAfter(value));
+            const response = await getDocs(q);
+            generateProductList(response);
+        } catch(err) { 
+            setCanTap(true); 
+            console.log(err); 
+        }
+    }
 
-            //setProducts(tempDoc);
-            
-            console.log('======')
-            console.log(tempDoc);
-            console.log('======')
-            getImageFromUrl(0, tempDoc)
-          } catch(err) { }
+    const generateProductList = (data) => {
+        let tempDoc = [];
+        setProducts([]);
+
+        data.forEach((doc) => {
+            const data = doc.data();
+    
+            tempDoc.push({
+                id: doc.id,
+                img: '',
+                category: data.category,
+                description: data.description,
+                discount: data.discount,
+                discount_end: data.discount_end,
+                discount_start: data.discount_start,
+                name: data.name,
+                price: data.price,
+                quantity: data.quantity,
+                url: data.url,
+                userID: data.userID
+            });
+        });
+
+        getImageFromUrl(0, tempDoc)
     }
 
     const getImageFromUrl = async (index, list) => {
         let tempIdx = index;
         let tempList = list;
-        console.log('============')
-        console.log('============')
-        console.log('INDEX = ', index, ' URL = ', tempList[tempIdx].url)
         const storage = getStorage();
         const gsReference = ref(storage, tempList[tempIdx].url);
         await getDownloadURL(gsReference).then((url) => {
-            console.log(url);
             tempList[tempIdx].img = url;
             tempIdx++;
             if(tempIdx < tempList.length) {
-                //tempList.push(url);
                 getImageFromUrl(tempIdx, tempList);
             } else {
-                //setImageList(tempList);
+                setCanTap(true);
                 setProducts(tempList);
-                console.log('=========');
-                console.log(products);
             }
         })
-        .catch((error) => { console.log(error) });
+        .catch((error) => { setCanTap(true); });
     }
-
-    useEffect(() => {
-        getAllCategories();
-        getAllProducts();
-    }, []);
-
-    const [catN, setCatN] = useState(-1);
-    const [keyWord, setKeyWord] = useState('');
-    const [page, setPage] = useState(1);
 
     const selectCategory = (value) => {
         setCatN(value);
@@ -108,94 +108,106 @@ const StoreScreen = ({navigation}) => {
     }
 
     const nextPage = () => {
-        let tempPage = page + 1;
-        tempPage = tempPage > 2 ? 2 : tempPage;
+        if(canTap) {
+            let tempPage = page + 1;
+            console.log('TAP NEXT');
+            getProductByPage(10 * tempPage);
+            setPage(tempPage);
+        }
     }
 
     const prevPage = () => {
-        let tempPage = page - 1
-        tempPage = tempPage < 1 ? 1 : tempPage;
+        if(canTap) {
+            let tempPage = page - 1
+            tempPage = tempPage < 1 ? 1 : tempPage;
+            console.log('TAP NEXT');
+            getProductByPage(products.length - 1);
+            setPage(tempPage);
+        }
     }
 
     const openProduct = (index) => {
-        // TO - DO
-        // PUSH DETAIL PAGE ON NAVIGATION WITH PRODUCT DATA
-        navigation.navigate('Product', { product: dummyDate[index] })
+        navigation.navigate('ProductScreen', { product: products[index] })
     }
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.search}>
-        <TextInput style={styles.searchInput} onSubmitEditing={searchByKeyword} onChangeText={setKeyWord} value={keyWord} placeholder='Search Items'/>
-        <Ionicons style={styles.searchIcon} name="search" size={24} color="grey" />
-      </View>
+    useEffect(() => {
+        getAllCategories();
+        getAllProducts();
+    }, []);
 
-      <View style={styles.scrollHorizontal} showsHorizontalScrollIndicator={false} horizontal={true}>
-        
-        <FlatList style={{flexDirection: 'row', paddingRight: 25}} nestedScrollEnabled 
-        showsHorizontalScrollIndicator={false} 
-        numColumns={1} horizontal={true} 
-        removeClippedSubviews={false} 
-        data={categories} 
-        ListHeaderComponent={
-          <View style={{ flexDirection: 'row' }}>
-            <Pressable onPress={() => selectCategory(-1)} style={[styles.categoryBtn, catN == -1 ? styles.catBtnOn : styles.catBtnOff]}>
-              <Text style={styles.categoryTxt}>All</Text>
-            </Pressable>
-            <Pressable onPress={() => selectCategory(-2)} style={[styles.categoryBtn, catN == -2 ? styles.catBtnOn : styles.catBtnOff]}>
-              <Text style={styles.categoryTxt}>Deals</Text>
-            </Pressable>
-          </View>
-        }
-        renderItem={({ item, index }) => 
-            <Pressable onPress={() => selectCategory(index)} style={[styles.categoryBtn, catN == index ? styles.catBtnOn : styles.catBtnOff]}>
-              <Text style={styles.categoryTxt}>{item.name}</Text>
-            </Pressable>
-          }/>
-      </View>
-      
-        <FlatList style={styles.scroll} nestedScrollEnabled numColumns={2} data={products} renderItem={({ item, index }) => 
-          <Pressable style={[styles.card, index % 2 == 0 ? styles.colOne : styles.colTwo ]} onPress={() => openProduct(index)}>
-            <View style={styles.cardBG}>
-              <View style={styles.cardImgCover}>
-                <Image style={styles.cardImg} source={{uri: item.img}}/>
-                { item.discount > 0 ? 
-                <>
-                  <Text style={styles.cardDeal}>{item.discount}% off</Text>
-                </>
-                :
-                <></>
-                }
-              </View>
-              <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardName}>{item.name}</Text>
-              <View style={styles.flexRow}>
-                { item.discount > 0 ? 
-                  <>
-                    <Text style={[styles.cardPrice, styles.cardPriceLine, {color: '#6B6B6B'}]}>${item.price}</Text>
-                    <Text style={[styles.cardPrice, {color: '#6B6B6B'}]}> - </Text>
-                    <Text style={styles.cardPrice}>${(item.price * ((100 - item.discount) / 100)).toFixed(2)}</Text>
-                  </>
-                :
-                  <Text style={styles.cardPrice}>${item.price}</Text>
-                }
-              </View>
+    return (
+        <SafeAreaView style={styles.container}>
+        <View style={styles.search}>
+            <TextInput style={styles.searchInput} onSubmitEditing={searchByKeyword} onChangeText={setKeyWord} value={keyWord} placeholder='Search Items'/>
+            <Ionicons style={styles.searchIcon} name="search" size={24} color="grey" />
+        </View>
+
+        <View style={styles.scrollHorizontal} showsHorizontalScrollIndicator={false} horizontal={true}>
+            
+            <FlatList style={{flexDirection: 'row', paddingRight: 25}} nestedScrollEnabled 
+            showsHorizontalScrollIndicator={false} 
+            numColumns={1} horizontal={true} 
+            removeClippedSubviews={false} 
+            data={categories} 
+            ListHeaderComponent={
+            <View style={{ flexDirection: 'row' }}>
+                <Pressable onPress={() => selectCategory(-1)} style={[styles.categoryBtn, catN == -1 ? styles.catBtnOn : styles.catBtnOff]}>
+                <Text style={styles.categoryTxt}>All</Text>
+                </Pressable>
+                <Pressable onPress={() => selectCategory(-2)} style={[styles.categoryBtn, catN == -2 ? styles.catBtnOn : styles.catBtnOff]}>
+                <Text style={styles.categoryTxt}>Deals</Text>
+                </Pressable>
             </View>
-          </Pressable>
-        }
-        ListFooterComponent={
-          <View style={styles.navGroup}>
-            <Pressable onPress={prevPage} style={[styles.navBtn, { opacity : page == 1 ? 0.5 : 1 } ]}>
-              <MaterialIcons name="arrow-back-ios" size={24} color="#fff" />
+            }
+            renderItem={({ item, index }) => 
+                <Pressable onPress={() => selectCategory(index)} style={[styles.categoryBtn, catN == index ? styles.catBtnOn : styles.catBtnOff]}>
+                <Text style={styles.categoryTxt}>{item.name}</Text>
+                </Pressable>
+            }/>
+        </View>
+        
+            <FlatList style={styles.scroll} nestedScrollEnabled numColumns={2} data={products} renderItem={({ item, index }) => 
+            <Pressable style={[styles.card, index % 2 == 0 ? styles.colOne : styles.colTwo ]} onPress={() => openProduct(index)}>
+                <View style={styles.cardBG}>
+                <View style={styles.cardImgCover}>
+                    <Image style={styles.cardImg} source={{uri: item.img}}/>
+                    { item.discount > 0 ? 
+                    <>
+                    <Text style={styles.cardDeal}>{item.discount}% off</Text>
+                    </>
+                    :
+                    <></>
+                    }
+                </View>
+                <Text numberOfLines={1} ellipsizeMode='tail' style={styles.cardName}>{item.name}</Text>
+                <View style={styles.flexRow}>
+                    { item.discount > 0 ? 
+                    <>
+                        <Text style={[styles.cardPrice, styles.cardPriceLine, {color: '#6B6B6B'}]}>${item.price}</Text>
+                        <Text style={[styles.cardPrice, {color: '#6B6B6B'}]}> - </Text>
+                        <Text style={styles.cardPrice}>${(item.price * ((100 - item.discount) / 100)).toFixed(2)}</Text>
+                    </>
+                    :
+                    <Text style={styles.cardPrice}>${item.price}</Text>
+                    }
+                </View>
+                </View>
             </Pressable>
-            <Text style={styles.navPages}>{page} / {2}</Text>
-            <Pressable onPress={nextPage} style={[styles.navBtn, { opacity : page == 2 ? 0.5 : 1 } ]}>
-              <MaterialIcons name="arrow-forward-ios" size={24} color="#fff" />
-            </Pressable>
-          </View>
-        }
-        />
-    </SafeAreaView>
-  )
+            }
+            ListFooterComponent={
+            <View style={styles.navGroup}>
+                <Pressable onPress={prevPage} style={[styles.navBtn, { opacity : page == 1 ? 0.5 : 1 } ]}>
+                    <MaterialIcons name="arrow-back-ios" size={24} color="#fff" />
+                </Pressable>
+                <Text style={styles.navPages}>{page}</Text>
+                <Pressable onPress={nextPage} style={[styles.navBtn, { opacity : products.length < 10 ? 0.5 : 1 } ]}>
+                    <MaterialIcons name="arrow-forward-ios" size={24} color="#fff" />
+                </Pressable>
+            </View>
+            }
+            />
+        </SafeAreaView>
+    )
 }
 
 export default StoreScreen
