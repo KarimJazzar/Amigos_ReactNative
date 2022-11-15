@@ -33,7 +33,7 @@ const AdminHomeScreen = ({navigation}) => {
                     <Text style={styles.adminTxt}>Customers</Text>
                 </Pressable>
 
-                <Pressable style={styles.adminBtn}>
+                <Pressable onPress={() => goToPage('Statistics')} style={styles.adminBtn}>
                     <Text style={styles.adminTxt}>Purchase Statistics</Text>
                 </Pressable>
             </ScrollView>

@@ -11,6 +11,7 @@ import EditProduct from "../admin/EditProduct";
 import EditCategory from "../admin/EditCategory";
 import EditCategoryFinal from "../admin/EditCategoryFinal";
 import EditProductFinal from "../admin/EditProductFinal";
+import Statistics from "../admin/Statistics";
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +27,8 @@ const AdminScreen = () => {
       <Stack.Screen name="EditCategory" component={EditCategory}/>
       <Stack.Screen name="EditCategoryFinal" component={EditCategoryFinal}/>
       <Stack.Screen name="EditProductFinal" component={EditProductFinal}/>
+      <Stack.Screen name="Statistics" component={Statistics}/>
+      
       
     </Stack.Navigator>
   )
