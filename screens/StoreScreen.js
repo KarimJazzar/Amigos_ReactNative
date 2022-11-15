@@ -132,10 +132,11 @@ const StoreScreen = ({navigation}) => {
         }
     }
 
-    const searchByKeyword = () => {
-        // TO - DO
-        // PERFORM SEARCH BY KEYWORD
+    const searchByKeyword = async () => {
         console.log(keyWord);
+        const q = query(collection(db, "product"), where('name', '==', keyWord));
+        const response = await getDocs(q);
+        generateProductList(response);
     }
 
     const nextPage = () => {
