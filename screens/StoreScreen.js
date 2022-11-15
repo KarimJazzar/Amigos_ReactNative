@@ -47,17 +47,17 @@ const StoreScreen = ({navigation}) => {
             const prodsRef = collection(db, "product");
             const docSnap = await getDoc(doc(prodsRef, products[value].id));
   
-              const q = query(collection(db, "product"), orderBy('name'), limit(10), endBefore(docSnap));
-              const response = await getDocs(q);
-              generateProductList(response);
+            const q = query(collection(db, "product"), orderBy('name'), limit(10), endBefore(docSnap));
+            const response = await getDocs(q);
+            generateProductList(response);
           }else{
             console.log(value);
             const prodsRef = collection(db, "product");
             const docSnap = await getDoc(doc(prodsRef, products[value].id));
   
-              const q = query(collection(db, "product"), orderBy('name'), limit(10), startAfter(docSnap));
-              const response = await getDocs(q);
-              generateProductList(response);
+            const q = query(collection(db, "product"), orderBy('name'), limit(10), startAfter(docSnap));
+            const response = await getDocs(q);
+            generateProductList(response);
           }
           
         } catch(err) { 
@@ -112,8 +112,24 @@ const StoreScreen = ({navigation}) => {
 
     const selectCategory = (value) => {
         setCatN(value);
-        // TO - DO
-        // SEARCH BY CATEGORY
+        setCanTap(false);
+        searchByFilter(value);
+    }
+
+    const searchByFilter = async (value) => {
+        if(value == -1) {
+            const q = query(collection(db, "product"), orderBy('name'), limit(10), endBefore(docSnap));
+            const response = await getDocs(q);
+            generateProductList(response);
+        } else if (value == -2) {
+            const q = query(collection(db, "product"), where('discount', '>', 0));
+            const response = await getDocs(q);
+            generateProductList(response);
+        } else {
+            const q = query(collection(db, "product"), where('category', '==', categories[value].name));
+            const response = await getDocs(q);
+            generateProductList(response);
+        }
     }
 
     const searchByKeyword = () => {
@@ -125,7 +141,6 @@ const StoreScreen = ({navigation}) => {
     const nextPage = () => {
         if(canTap) {
             let tempPage = page + 1;
-            console.log('TAP NEXT');
             getProductByPage(products.length-1);
             setPage(tempPage);
         }
@@ -136,7 +151,6 @@ const StoreScreen = ({navigation}) => {
         if(canTap) {
             let tempPage = 1
             //tempPage = tempPage < 1 ? 1 : tempPage;
-            console.log('TAP NEXT');
             getProductByPage(0);
             setPage(tempPage);
         }
