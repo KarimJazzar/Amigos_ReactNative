@@ -7,17 +7,20 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { auth } from '../firebase';
 import { db } from '../firebase'
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } from "firebase/firestore/lite"; 
+import { FirebaseError } from 'firebase/app';
   
-const UpdateScreen = ({}) => {
+const UpdateScreen = ({route, navigation}) => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fName, setFirstName] = useState('')
+  const [lName, setLastName] = useState('')
+  const [userAdress, setAddress] = useState('')
 
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [address, setAddress] = useState('')
+  const { usID } = route.params;
 
-  const navigation = useNavigation()
+
+  //const navigation = useNavigation()
 
   const userLoggedInID = auth.currentUser?.uid
 
@@ -34,8 +37,23 @@ const UpdateScreen = ({}) => {
     navigation.replace("TabNavigation")
   }
 
-  function updateFirebaseData(email,fName,lName,userAdress, userID){
+  console.log(usID);
+  function updateFirebaseData(){
     const docRef = doc(db,"users", userID);
+    const userData = {
+        address: userAdress,
+        email: email,
+        firstName: fName,
+        lastName: lName,
+        password: password
+    }
+    console.log(userData);
+    setDoc(docRef,userData);
+  }
+
+  const handleUpdatedData = () => {
+    // UPDATION CODE HERE
+    const docRef = doc(db,"users", usID);
     const userData = {
         email: email,
         firstName: fName,
@@ -44,10 +62,6 @@ const UpdateScreen = ({}) => {
         isAdmin: false
     }
     setDoc(docRef,userData);
-  }
-
-  const handleUpdatedData = () => {
-    // UPDATION CODE
   }
 
   const [userLogged,setUserLogged] = useState({});
@@ -68,21 +82,21 @@ const UpdateScreen = ({}) => {
 
       <TextInput
           placeholder="First Name"
-          value={firstName}
+          value={fName}
           onChangeText={text => setFirstName(text)}
           style={styles.input}
         />
 
         <TextInput
           placeholder="Last Name"
-          value={lastName}
+          value={lName}
           onChangeText={text => setLastName(text)}
           style={styles.input}
         />
 
         <TextInput
           placeholder="Address"
-          value={address}
+          value={userAdress}
           onChangeText={text => setAddress(text)}
           style={styles.input}
         />

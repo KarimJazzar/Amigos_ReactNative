@@ -147,9 +147,13 @@ const StoreScreen = ({navigation}) => {
     }
 
     useEffect(() => {
-        getAllCategories();
-        getAllProducts();
-    }, []);
+        const unsubscribe = navigation.addListener('focus', () => {
+            getAllCategories();
+            getAllProducts();
+        });
+      
+        return unsubscribe;
+      }, [navigation]);
 
     return (
         <SafeAreaView style={styles.container}>

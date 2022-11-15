@@ -35,8 +35,15 @@ const ProfileScreen = () => {
   }
 
   const handleUpdate = () => {
-        navigation.replace("Update")
+        //navigation.replace("Update")
+        navigation.navigate('Update', {usID: userLoggedInID});
   }
+
+  const handleOrders = () => {
+    navigation.navigate("OrdersScreen")
+}
+
+
 
   useEffect(() => {
     getUserDetails(userLoggedInID).then(userDetails => {
@@ -62,6 +69,13 @@ const ProfileScreen = () => {
         style={styles.item}
       >
         <Text style={styles.backTxt}>Update Profile</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={handleOrders}
+        style={styles.item}
+      >
+        <Text style={styles.backTxt}>View Orders</Text>
       </TouchableOpacity>
       
     </View>
