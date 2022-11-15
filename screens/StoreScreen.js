@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from '@expo/vector-icons'; 
 import SafeAreaView from 'react-native-safe-area-view';
 import { db } from '../firebase'
-import { collection, getDocs, where, orderBy, query, startAfter, limit, startAt } from "firebase/firestore/lite"; 
+import { collection, getDocs, getDoc, where, orderBy, query, startAfter, limit, startAt,doc, endAt, endBefore } from "firebase/firestore/lite"; 
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 const StoreScreen = ({navigation}) => {
@@ -42,9 +42,24 @@ const StoreScreen = ({navigation}) => {
         console.log(value);
         
         try {
-            const q = query(collection(db, "product"), orderBy('name'), limit(10), startAfter(value));
-            const response = await getDocs(q);
-            generateProductList(response);
+          if(value==0){
+            console.log(value);
+            const prodsRef = collection(db, "product");
+            const docSnap = await getDoc(doc(prodsRef, products[value].id));
+  
+              const q = query(collection(db, "product"), orderBy('name'), limit(10), endBefore(docSnap));
+              const response = await getDocs(q);
+              generateProductList(response);
+          }else{
+            console.log(value);
+            const prodsRef = collection(db, "product");
+            const docSnap = await getDoc(doc(prodsRef, products[value].id));
+  
+              const q = query(collection(db, "product"), orderBy('name'), limit(10), startAfter(docSnap));
+              const response = await getDocs(q);
+              generateProductList(response);
+          }
+          
         } catch(err) { 
             setCanTap(true); 
             console.log(err); 
@@ -111,17 +126,18 @@ const StoreScreen = ({navigation}) => {
         if(canTap) {
             let tempPage = page + 1;
             console.log('TAP NEXT');
-            getProductByPage(10 * tempPage);
+            getProductByPage(products.length-1);
             setPage(tempPage);
         }
     }
 
+
     const prevPage = () => {
         if(canTap) {
-            let tempPage = page - 1
-            tempPage = tempPage < 1 ? 1 : tempPage;
+            let tempPage = 1
+            //tempPage = tempPage < 1 ? 1 : tempPage;
             console.log('TAP NEXT');
-            getProductByPage(products.length - 1);
+            getProductByPage(0);
             setPage(tempPage);
         }
     }
@@ -131,9 +147,13 @@ const StoreScreen = ({navigation}) => {
     }
 
     useEffect(() => {
-        getAllCategories();
-        getAllProducts();
-    }, []);
+        const unsubscribe = navigation.addListener('focus', () => {
+            getAllCategories();
+            getAllProducts();
+        });
+      
+        return unsubscribe;
+      }, [navigation]);
 
     return (
         <SafeAreaView style={styles.container}>

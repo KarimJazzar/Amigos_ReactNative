@@ -39,13 +39,15 @@ const ProductScreen = ({navigation, route}) => {
                 let tempObj = {
                     userID: userLoggedInID, 
                     amount: qty,
+                    category: product.category,
                     productID: product.id,
+                    image: '' + product.img,
                     name: product.name,
-                    prince: product.price,
+                    price: product.price,
                     discount: product.discount,
                     quantity: product.quantity
                 }
-    
+                
                 await addDoc(collection(db, "cart"), tempObj).then(() => { 
                     console.log('data submitted');
                     checkInCart();
@@ -54,6 +56,7 @@ const ProductScreen = ({navigation, route}) => {
                 });
             } catch(err) { }
 
+            checkInCart();
             setCanAdd(true);
         }
     }
@@ -63,16 +66,16 @@ const ProductScreen = ({navigation, route}) => {
             userID: userLoggedInID, 
             amount: qty,
             productID: product.id,
+            category: product.category,
+            image: '' + product.img,
             name: product.name,
-            prince: product.price,
+            price: product.price,
             discount: product.discount,
             quantity: product.quantity
         });
     }
 
     const checkInCart = async () => {
-        console.log(userLoggedInID, product.id)
-
         try {
             const q = query(collection(db, "cart"),  where("userID", "==", userLoggedInID), where("productID", "==", product.id));
             const response = await getDocs(q);
