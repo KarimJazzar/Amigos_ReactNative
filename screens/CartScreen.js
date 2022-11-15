@@ -63,7 +63,12 @@ const CartScreen = ({navigation}) => {
           productList.push(doc.data());
         });
 
-        console.log('BEFORE LOOP')
+        const date = new Date();
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+        let currentDate = `${day}-${month}-${year}`;
+
         for(let i = 0; i <=cart.length; i++) {
           let item = cart[i];
           let tempTotal = item.discount > 0 ? (item.amount * (item.price * ((100 - item.discount) / 100))) : (item.price * item.amount);
@@ -77,7 +82,8 @@ const CartScreen = ({navigation}) => {
               price: item.price,
               status: 'ongoing',
               discount: item.discount,
-              total: tempTotal
+              total: tempTotal,
+              date: currentDate
           }
 
           await addDoc(collection(db, "orders"), tempObj).then(() => { 

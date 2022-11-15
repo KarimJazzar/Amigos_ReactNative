@@ -47,7 +47,7 @@ const ProductScreen = ({navigation, route}) => {
                     discount: product.discount,
                     quantity: product.quantity
                 }
-    
+                
                 await addDoc(collection(db, "cart"), tempObj).then(() => { 
                     console.log('data submitted');
                     checkInCart();
@@ -66,6 +66,7 @@ const ProductScreen = ({navigation, route}) => {
             userID: userLoggedInID, 
             amount: qty,
             productID: product.id,
+            category: product.category,
             image: '' + product.img,
             name: product.name,
             price: product.price,
