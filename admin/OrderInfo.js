@@ -33,7 +33,7 @@ querySnapshot.forEach((doc) => {
     </TouchableOpacity>
   );
 
-const CustomerInformation = ({navigation}) => {
+const OrderInfo = ({navigation}) => {
     const goBack = () => {
       navigation.goBack()
     }
@@ -120,6 +120,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomerInformation
+export default OrderInfo
 
   
