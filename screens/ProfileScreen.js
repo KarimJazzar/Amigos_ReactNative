@@ -35,7 +35,8 @@ const ProfileScreen = () => {
   }
 
   const handleUpdate = () => {
-        navigation.replace("Update")
+        //navigation.replace("Update")
+        navigation.navigate('Update', {usID: userLoggedInID});
   }
 
   useEffect(() => {
