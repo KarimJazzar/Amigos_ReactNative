@@ -13,6 +13,9 @@ const AdminHomeScreen = ({navigation}) => {
             <ScrollView style={styles.scroll}>
                 <Text style={styles.headline}>Admin Panel:</Text>
                 
+                 
+                
+
                 <Pressable onPress={() => goToPage('AddCategory')} style={styles.adminBtn}>
                     <Text style={styles.adminTxt}>Create Categories</Text>
                 </Pressable>
@@ -27,6 +30,10 @@ const AdminHomeScreen = ({navigation}) => {
 
                 <Pressable onPress={() => goToPage('EditProduct')} style={styles.adminBtn}>
                     <Text style={styles.adminTxt}>Edit Product</Text>
+                </Pressable>
+
+                <Pressable onPress={() => goToPage('OrderInfo')} style={styles.adminBtn}>
+                    <Text style={styles.adminTxt}>Ongoing Orders</Text>
                 </Pressable>
 
                 <Pressable onPress={() => goToPage('CustomerInfo')} style={styles.adminBtn}>
