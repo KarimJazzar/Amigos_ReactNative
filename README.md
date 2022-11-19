@@ -1,6 +1,6 @@
 # Amigos_ReactNative
 
-Login
+Login <br/>
 ![login](https://user-images.githubusercontent.com/68635396/202833117-d833c751-47ad-4271-971b-dd3cfc3ceb4c.JPG)
 
 Register
